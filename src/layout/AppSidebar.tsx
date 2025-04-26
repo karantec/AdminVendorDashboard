@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useLocation } from "react-router-dom"; // Fixed import path
+import { Link, useLocation } from "react-router";
 
 // Assume these icons are imported from an icon library
 import {
@@ -26,7 +26,8 @@ const navItems: NavItem[] = [
     name: "Dashboard",
     subItems: [{ name: "Analytics", path: "/", pro: false }],
   },
-];
+]
+ 
 
 const othersItems: NavItem[] = [
   {
@@ -50,6 +51,7 @@ const othersItems: NavItem[] = [
       { name: "System Performance", path: "/bar-chart", pro: false },
     ],
   },
+
   {
     icon: <PieChartIcon />,
     name: "Vendor Portal Settings",
@@ -61,51 +63,75 @@ const othersItems: NavItem[] = [
       { name: "System Performance", path: "/bar-chart", pro: false },
     ],
   },
+
   {
     icon: <BoxCubeIcon />,
     name: "Categories Management",
     subItems: [
+      
       { name: "Add New Categories", path: "/alerts", pro: false },
       { name: "View Categories", path: "/avatars", pro: false },
+      // { name: "Badge", path: "/badge", pro: false },
+      // { name: "Buttons", path: "/buttons", pro: false },
+      // { name: "Images", path: "/images", pro: false },
+      // { name: "Videos", path: "/videos", pro: false },
     ],
   },
+
+  
   {
     icon: <BoxCubeIcon />,
     name: "Product Management",
     subItems: [
+      
       { name: "Add New Product", path: "/alerts", pro: false },
       { name: "View Products", path: "/avatars", pro: false },
       { name: "Manage Product Pricing", path: "/badge", pro: false },
+      // { name: "Buttons", path: "/buttons", pro: false },
+      // { name: "Images", path: "/images", pro: false },
+      // { name: "Videos", path: "/videos", pro: false },
     ],
   },
+
   {
     icon: <BoxCubeIcon />,
     name: "Vendor Management",
     subItems: [
+      
       { name: "Approve New Vendor", path: "/alerts", pro: false },
       { name: "Manage Vendor Accounts", path: "/avatars", pro: false },
       { name: "Review Vendor Stock updates", path: "/badge", pro: false },
       { name: "View Vendor Analytics", path: "/buttons", pro: false },
+      // { name: "Images", path: "/images", pro: false },
+      // { name: "Videos", path: "/videos", pro: false },
     ],
   },
+
   {
     icon: <BoxCubeIcon />,
     name: "Order Management",
     subItems: [
+      
       { name: "View All Orders", path: "/alerts", pro: false },
       { name: "Track Order Status", path: "/avatars", pro: false },
       { name: "Handle Order Issues", path: "/badge", pro: false },
       { name: "Order Reassigned", path: "/buttons", pro: false },
+      // { name: "Images", path: "/images", pro: false },
+      // { name: "Videos", path: "/videos", pro: false },
     ],
   },
   {
     icon: <BoxCubeIcon />,
     name: "User Management",
     subItems: [
+      
       { name: "View User Account", path: "/alerts", pro: false },
       { name: "Handle User Cases", path: "/avatars", pro: false },
       { name: "User Analytics", path: "/badge", pro: false },
       { name: "User Order", path: "/badge", pro: false },
+      // { name: "Order Reassigned", path: "/buttons", pro: false },
+      // // { name: "Images", path: "/images", pro: false },
+      // // { name: "Videos", path: "/videos", pro: false },
     ],
   },
   {
@@ -123,12 +149,15 @@ const AppSidebar: React.FC = () => {
   const location = useLocation();
 
   const [openSubmenu, setOpenSubmenu] = useState<{
-    type: "main" | "others";
+    type: "main";
     index: number;
   } | null>(null);
-  const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>({});
+  const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
+    {}
+  );
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
+  // const isActive = (path: string) => location.pathname === path;
   const isActive = useCallback(
     (path: string) => location.pathname === path,
     [location.pathname]
@@ -137,8 +166,7 @@ const AppSidebar: React.FC = () => {
   useEffect(() => {
     let submenuMatched = false;
     
-    // Check both menu types (main and others)
-    ["main", "others"].forEach((menuType) => {
+    ["main"].forEach((menuType) => {
       const items = menuType === "main" ? navItems : othersItems;
       items.forEach((nav, index) => {
         if (nav.subItems) {
@@ -154,7 +182,7 @@ const AppSidebar: React.FC = () => {
         }
       });
     });
-
+    
     if (!submenuMatched) {
       setOpenSubmenu(null);
     }
@@ -203,7 +231,7 @@ const AppSidebar: React.FC = () => {
               }`}
             >
               <span
-                className={`menu-item-icon-size ${
+                className={`menu-item-icon-size  ${
                   openSubmenu?.type === menuType && openSubmenu?.index === index
                     ? "menu-item-icon-active"
                     : "menu-item-icon-inactive"
@@ -370,12 +398,12 @@ const AppSidebar: React.FC = () => {
                 {isExpanded || isHovered || isMobileOpen ? (
                   "Menu"
                 ) : (
-                  <HorizontaLDots className="w-6 h-6" />
+                  <HorizontaLDots className="size-6" />
                 )}
               </h2>
               {renderMenuItems(navItems, "main")}
             </div>
-            <div>
+            <div className="">
               <h2
                 className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
                   !isExpanded && !isHovered
@@ -386,7 +414,7 @@ const AppSidebar: React.FC = () => {
                 {isExpanded || isHovered || isMobileOpen ? (
                   "Others"
                 ) : (
-                  <HorizontaLDots className="w-6 h-6" />
+                  <HorizontaLDots />
                 )}
               </h2>
               {renderMenuItems(othersItems, "others")}
