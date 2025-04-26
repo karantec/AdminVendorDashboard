@@ -26,8 +26,7 @@ const navItems: NavItem[] = [
     name: "Dashboard",
     subItems: [{ name: "Analytics", path: "/", pro: false }],
   },
-]
- 
+];
 
 const othersItems: NavItem[] = [
   {
@@ -51,7 +50,6 @@ const othersItems: NavItem[] = [
       { name: "System Performance", path: "/bar-chart", pro: false },
     ],
   },
-
   {
     icon: <PieChartIcon />,
     name: "Vendor Portal Settings",
@@ -63,75 +61,51 @@ const othersItems: NavItem[] = [
       { name: "System Performance", path: "/bar-chart", pro: false },
     ],
   },
-
   {
     icon: <BoxCubeIcon />,
     name: "Categories Management",
     subItems: [
-      
       { name: "Add New Categories", path: "/alerts", pro: false },
       { name: "View Categories", path: "/avatars", pro: false },
-      // { name: "Badge", path: "/badge", pro: false },
-      // { name: "Buttons", path: "/buttons", pro: false },
-      // { name: "Images", path: "/images", pro: false },
-      // { name: "Videos", path: "/videos", pro: false },
     ],
   },
-
-  
   {
     icon: <BoxCubeIcon />,
     name: "Product Management",
     subItems: [
-      
       { name: "Add New Product", path: "/alerts", pro: false },
       { name: "View Products", path: "/avatars", pro: false },
       { name: "Manage Product Pricing", path: "/badge", pro: false },
-      // { name: "Buttons", path: "/buttons", pro: false },
-      // { name: "Images", path: "/images", pro: false },
-      // { name: "Videos", path: "/videos", pro: false },
     ],
   },
-
   {
     icon: <BoxCubeIcon />,
     name: "Vendor Management",
     subItems: [
-      
       { name: "Approve New Vendor", path: "/alerts", pro: false },
       { name: "Manage Vendor Accounts", path: "/avatars", pro: false },
       { name: "Review Vendor Stock updates", path: "/badge", pro: false },
       { name: "View Vendor Analytics", path: "/buttons", pro: false },
-      // { name: "Images", path: "/images", pro: false },
-      // { name: "Videos", path: "/videos", pro: false },
     ],
   },
-
   {
     icon: <BoxCubeIcon />,
     name: "Order Management",
     subItems: [
-      
       { name: "View All Orders", path: "/alerts", pro: false },
       { name: "Track Order Status", path: "/avatars", pro: false },
       { name: "Handle Order Issues", path: "/badge", pro: false },
       { name: "Order Reassigned", path: "/buttons", pro: false },
-      // { name: "Images", path: "/images", pro: false },
-      // { name: "Videos", path: "/videos", pro: false },
     ],
   },
   {
     icon: <BoxCubeIcon />,
     name: "User Management",
     subItems: [
-      
       { name: "View User Account", path: "/alerts", pro: false },
       { name: "Handle User Cases", path: "/avatars", pro: false },
       { name: "User Analytics", path: "/badge", pro: false },
       { name: "User Order", path: "/badge", pro: false },
-      // { name: "Order Reassigned", path: "/buttons", pro: false },
-      // // { name: "Images", path: "/images", pro: false },
-      // // { name: "Videos", path: "/videos", pro: false },
     ],
   },
   {
@@ -148,16 +122,15 @@ const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
 
+  // Fix: Change the type to accept both "main" and "others"
   const [openSubmenu, setOpenSubmenu] = useState<{
-    type: "main";
+    type: "main" | "others";
     index: number;
   } | null>(null);
-  const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
-    {}
-  );
+  
+  const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>({});
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  // const isActive = (path: string) => location.pathname === path;
   const isActive = useCallback(
     (path: string) => location.pathname === path,
     [location.pathname]
@@ -166,14 +139,28 @@ const AppSidebar: React.FC = () => {
   useEffect(() => {
     let submenuMatched = false;
     
-    ["main"].forEach((menuType) => {
-      const items = menuType === "main" ? navItems : othersItems;
-      items.forEach((nav, index) => {
+    // Fix: Check both menu types separately
+    navItems.forEach((nav, index) => {
+      if (nav.subItems) {
+        nav.subItems.forEach((subItem) => {
+          if (isActive(subItem.path)) {
+            setOpenSubmenu({
+              type: "main",
+              index,
+            });
+            submenuMatched = true;
+          }
+        });
+      }
+    });
+    
+    if (!submenuMatched) {
+      othersItems.forEach((nav, index) => {
         if (nav.subItems) {
           nav.subItems.forEach((subItem) => {
             if (isActive(subItem.path)) {
               setOpenSubmenu({
-                type: "main",  // Only use "main" since "others" isn't allowed
+                type: "others",
                 index,
               });
               submenuMatched = true;
@@ -181,7 +168,7 @@ const AppSidebar: React.FC = () => {
           });
         }
       });
-    });
+    }
     
     if (!submenuMatched) {
       setOpenSubmenu(null);
