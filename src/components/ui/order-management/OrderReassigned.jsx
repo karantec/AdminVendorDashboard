@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -21,93 +21,79 @@ import {
   DialogActions,
   Snackbar,
   Alert,
-  CircularProgress
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { LocalShipping, AssignmentInd, Info, CheckCircle, Cancel } from '@mui/icons-material';
-
-// Define types
-interface Order {
-  id: string;
-  orderNumber: string;
-  customerName: string;
-  storeName: string;
-  originalDriver: string;
-  status: 'pending' | 'in-progress' | 'completed' | 'cancelled';
-  itemsCount: number;
-  totalAmount: number;
-  createdAt: string;
-}
-
-interface Driver {
-  id: string;
-  name: string;
-  status: 'available' | 'busy' | 'offline';
-  currentOrders: number;
-}
+  CircularProgress,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import {
+  LocalShipping,
+  AssignmentInd,
+  Info,
+  CheckCircle,
+  Cancel,
+} from "@mui/icons-material";
 
 // Dummy data
-const dummyOrders: Order[] = [
+const dummyOrders = [
   {
-    id: '1',
-    orderNumber: 'ORD-2023-001',
-    customerName: 'John Doe',
-    storeName: 'Fresh Mart',
-    originalDriver: 'Driver Smith',
-    status: 'pending',
+    id: "1",
+    orderNumber: "ORD-2023-001",
+    customerName: "John Doe",
+    storeName: "Fresh Mart",
+    originalDriver: "Driver Smith",
+    status: "pending",
     itemsCount: 8,
     totalAmount: 45.99,
-    createdAt: '2023-05-15T10:30:00Z'
+    createdAt: "2023-05-15T10:30:00Z",
   },
   {
-    id: '2',
-    orderNumber: 'ORD-2023-002',
-    customerName: 'Jane Smith',
-    storeName: 'Quick Grocery',
-    originalDriver: 'Driver Johnson',
-    status: 'in-progress',
+    id: "2",
+    orderNumber: "ORD-2023-002",
+    customerName: "Jane Smith",
+    storeName: "Quick Grocery",
+    originalDriver: "Driver Johnson",
+    status: "in-progress",
     itemsCount: 5,
-    totalAmount: 32.50,
-    createdAt: '2023-05-15T11:15:00Z'
+    totalAmount: 32.5,
+    createdAt: "2023-05-15T11:15:00Z",
   },
   {
-    id: '3',
-    orderNumber: 'ORD-2023-003',
-    customerName: 'Robert Brown',
-    storeName: 'Urban Fresh',
-    originalDriver: 'Driver Williams',
-    status: 'pending',
+    id: "3",
+    orderNumber: "ORD-2023-003",
+    customerName: "Robert Brown",
+    storeName: "Urban Fresh",
+    originalDriver: "Driver Williams",
+    status: "pending",
     itemsCount: 12,
     totalAmount: 78.25,
-    createdAt: '2023-05-15T12:45:00Z'
+    createdAt: "2023-05-15T12:45:00Z",
   },
 ];
 
-const dummyDrivers: Driver[] = [
-  { id: '1', name: 'Driver Adams', status: 'available', currentOrders: 1 },
-  { id: '2', name: 'Driver Baker', status: 'available', currentOrders: 0 },
-  { id: '3', name: 'Driver Clark', status: 'busy', currentOrders: 3 },
-  { id: '4', name: 'Driver Davis', status: 'available', currentOrders: 2 },
+const dummyDrivers = [
+  { id: "1", name: "Driver Adams", status: "available", currentOrders: 1 },
+  { id: "2", name: "Driver Baker", status: "available", currentOrders: 0 },
+  { id: "3", name: "Driver Clark", status: "busy", currentOrders: 3 },
+  { id: "4", name: "Driver Davis", status: "available", currentOrders: 2 },
 ];
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  '&:nth-of-type(odd)': {
+  "&:nth-of-type(odd)": {
     backgroundColor: theme.palette.action.hover,
   },
-  '&:last-child td, &:last-child th': {
+  "&:last-child td, &:last-child th": {
     border: 0,
   },
 }));
 
-const OrderReassigned: React.FC = () => {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [drivers, setDrivers] = useState<Driver[]>([]);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [selectedDriver, setSelectedDriver] = useState<string>('');
+const OrderReassigned = () => {
+  const [orders, setOrders] = useState([]);
+  const [drivers, setDrivers] = useState([]);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [selectedDriver, setSelectedDriver] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -117,7 +103,7 @@ const OrderReassigned: React.FC = () => {
         // In a real app, you would fetch from your API
         // const ordersResponse = await fetch('/api/orders/reassign');
         // const driversResponse = await fetch('/api/drivers');
-        
+
         // Using dummy data for now
         setTimeout(() => {
           setOrders(dummyOrders);
@@ -125,7 +111,7 @@ const OrderReassigned: React.FC = () => {
           setLoading(false);
         }, 1000);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
         setLoading(false);
       }
     };
@@ -133,21 +119,21 @@ const OrderReassigned: React.FC = () => {
     fetchData();
   }, []);
 
-  const handleReassignClick = (order: Order) => {
+  const handleReassignClick = (order) => {
     setSelectedOrder(order);
-    setSelectedDriver('');
+    setSelectedDriver("");
     setOpenDialog(true);
   };
 
-  const handleDriverChange = (event: React.ChangeEvent<{ value: unknown }>) => {
-    setSelectedDriver(event.target.value as string);
+  const handleDriverChange = (event) => {
+    setSelectedDriver(event.target.value);
   };
 
   const handleReassignConfirm = () => {
     if (!selectedOrder || !selectedDriver) return;
 
     setLoading(true);
-    
+
     // Simulate API call
     setTimeout(() => {
       // In a real app, you would call your API
@@ -155,13 +141,17 @@ const OrderReassigned: React.FC = () => {
       //   method: 'POST',
       //   body: JSON.stringify({ driverId: selectedDriver })
       // });
-      
+
       // Update local state
-      const updatedOrders = orders.filter(order => order.id !== selectedOrder.id);
+      const updatedOrders = orders.filter(
+        (order) => order.id !== selectedOrder.id
+      );
       setOrders(updatedOrders);
-      
-      setSnackbarMessage(`Order ${selectedOrder.orderNumber} reassigned successfully!`);
-      setSnackbarSeverity('success');
+
+      setSnackbarMessage(
+        `Order ${selectedOrder.orderNumber} reassigned successfully!`
+      );
+      setSnackbarSeverity("success");
       setSnackbarOpen(true);
       setOpenDialog(false);
       setLoading(false);
@@ -176,28 +166,39 @@ const OrderReassigned: React.FC = () => {
     setSnackbarOpen(false);
   };
 
-  const getStatusChip = (status: string) => {
+  const getStatusChip = (status) => {
     switch (status) {
-      case 'pending':
-        return <Chip icon={<Info />} label="Pending" color="warning" variant="outlined" />;
-      case 'in-progress':
-        return <Chip icon={<LocalShipping />} label="In Progress" color="primary" />;
-      case 'completed':
-        return <Chip icon={<CheckCircle />} label="Completed" color="success" />;
-      case 'cancelled':
+      case "pending":
+        return (
+          <Chip
+            icon={<Info />}
+            label="Pending"
+            color="warning"
+            variant="outlined"
+          />
+        );
+      case "in-progress":
+        return (
+          <Chip icon={<LocalShipping />} label="In Progress" color="primary" />
+        );
+      case "completed":
+        return (
+          <Chip icon={<CheckCircle />} label="Completed" color="success" />
+        );
+      case "cancelled":
         return <Chip icon={<Cancel />} label="Cancelled" color="error" />;
       default:
         return <Chip label={status} />;
     }
   };
 
-  const getDriverStatusChip = (status: string) => {
+  const getDriverStatusChip = (status) => {
     switch (status) {
-      case 'available':
+      case "available":
         return <Chip label="Available" color="success" size="small" />;
-      case 'busy':
+      case "busy":
         return <Chip label="Busy" color="warning" size="small" />;
-      case 'offline':
+      case "offline":
         return <Chip label="Offline" color="error" size="small" />;
       default:
         return <Chip label={status} size="small" />;
@@ -206,32 +207,38 @@ const OrderReassigned: React.FC = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
+      <Typography
+        variant="h4"
+        gutterBottom
+        sx={{ display: "flex", alignItems: "center" }}
+      >
         <AssignmentInd sx={{ mr: 1 }} /> Order Reassignment
       </Typography>
-      
+
       <Typography variant="body1" color="text.secondary" gutterBottom>
         Reassign pending or in-progress orders to different drivers when needed.
       </Typography>
-      
+
       {loading && orders.length === 0 ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
           <CircularProgress />
         </Box>
       ) : (
         <TableContainer component={Paper} sx={{ mt: 3 }}>
           <Table>
             <TableHead>
-              <TableRow sx={{ backgroundColor: 'primary.main' }}>
-                <TableCell sx={{ color: 'common.white' }}>Order #</TableCell>
-                <TableCell sx={{ color: 'common.white' }}>Customer</TableCell>
-                <TableCell sx={{ color: 'common.white' }}>Store</TableCell>
-                <TableCell sx={{ color: 'common.white' }}>Original Driver</TableCell>
-                <TableCell sx={{ color: 'common.white' }}>Status</TableCell>
-                <TableCell sx={{ color: 'common.white' }}>Items</TableCell>
-                <TableCell sx={{ color: 'common.white' }}>Total</TableCell>
-                <TableCell sx={{ color: 'common.white' }}>Created At</TableCell>
-                <TableCell sx={{ color: 'common.white' }}>Actions</TableCell>
+              <TableRow sx={{ backgroundColor: "primary.main" }}>
+                <TableCell sx={{ color: "common.white" }}>Order #</TableCell>
+                <TableCell sx={{ color: "common.white" }}>Customer</TableCell>
+                <TableCell sx={{ color: "common.white" }}>Store</TableCell>
+                <TableCell sx={{ color: "common.white" }}>
+                  Original Driver
+                </TableCell>
+                <TableCell sx={{ color: "common.white" }}>Status</TableCell>
+                <TableCell sx={{ color: "common.white" }}>Items</TableCell>
+                <TableCell sx={{ color: "common.white" }}>Total</TableCell>
+                <TableCell sx={{ color: "common.white" }}>Created At</TableCell>
+                <TableCell sx={{ color: "common.white" }}>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -244,14 +251,19 @@ const OrderReassigned: React.FC = () => {
                   <TableCell>{getStatusChip(order.status)}</TableCell>
                   <TableCell>{order.itemsCount}</TableCell>
                   <TableCell>${order.totalAmount.toFixed(2)}</TableCell>
-                  <TableCell>{new Date(order.createdAt).toLocaleString()}</TableCell>
+                  <TableCell>
+                    {new Date(order.createdAt).toLocaleString()}
+                  </TableCell>
                   <TableCell>
                     <Button
                       variant="outlined"
                       color="primary"
                       size="small"
                       onClick={() => handleReassignClick(order)}
-                      disabled={order.status === 'completed' || order.status === 'cancelled'}
+                      disabled={
+                        order.status === "completed" ||
+                        order.status === "cancelled"
+                      }
                     >
                       Reassign
                     </Button>
@@ -262,17 +274,22 @@ const OrderReassigned: React.FC = () => {
           </Table>
         </TableContainer>
       )}
-      
+
       {orders.length === 0 && !loading && (
-        <Box sx={{ mt: 3, textAlign: 'center' }}>
+        <Box sx={{ mt: 3, textAlign: "center" }}>
           <Typography variant="body1" color="text.secondary">
             No orders available for reassignment.
           </Typography>
         </Box>
       )}
-      
+
       {/* Reassignment Dialog */}
-      <Dialog open={openDialog} onClose={handleDialogClose} maxWidth="sm" fullWidth>
+      <Dialog
+        open={openDialog}
+        onClose={handleDialogClose}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle>Reassign Order</DialogTitle>
         <DialogContent>
           {selectedOrder && (
@@ -286,9 +303,11 @@ const OrderReassigned: React.FC = () => {
               <Typography variant="body1" gutterBottom>
                 <strong>Current Driver:</strong> {selectedOrder.originalDriver}
               </Typography>
-              
+
               <FormControl fullWidth sx={{ mt: 3 }}>
-                <InputLabel id="driver-select-label">Select New Driver</InputLabel>
+                <InputLabel id="driver-select-label">
+                  Select New Driver
+                </InputLabel>
                 <Select
                   labelId="driver-select-label"
                   value={selectedDriver}
@@ -296,10 +315,12 @@ const OrderReassigned: React.FC = () => {
                   onChange={handleDriverChange}
                 >
                   {drivers
-                    .filter(driver => driver.status !== 'offline')
-                    .map(driver => (
+                    .filter((driver) => driver.status !== "offline")
+                    .map((driver) => (
                       <MenuItem key={driver.id} value={driver.id}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
                           {driver.name}
                           {getDriverStatusChip(driver.status)}
                           <Typography variant="caption" color="text.secondary">
@@ -321,19 +342,23 @@ const OrderReassigned: React.FC = () => {
             variant="contained"
             disabled={!selectedDriver || loading}
           >
-            {loading ? <CircularProgress size={24} /> : 'Confirm Reassignment'}
+            {loading ? <CircularProgress size={24} /> : "Confirm Reassignment"}
           </Button>
         </DialogActions>
       </Dialog>
-      
+
       {/* Snackbar for notifications */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
       >
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
           {snackbarMessage}
         </Alert>
       </Snackbar>

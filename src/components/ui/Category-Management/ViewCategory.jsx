@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Card,
@@ -13,34 +13,23 @@ import {
   IconButton,
   Paper,
   Typography,
-  Alert
-} from '@mui/material';
-import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowBack } from '@mui/icons-material';
-import { useTheme } from '@mui/material/styles';
-import Sidebar from '../../../layout/AppSidebar'; // Adjust path as needed
+  Alert,
+} from "@mui/material";
+import { useParams, useNavigate } from "react-router-dom";
+import { ArrowBack } from "@mui/icons-material";
+import { useTheme } from "@mui/material/styles";
+import Sidebar from "../../../layout/AppSidebar"; // Adjust path as needed
 
-// Type definition for Category
-interface Category {
-  id: string;
-  name: string;
-  description: string;
-  imageUrl: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-const ViewCategory: React.FC = () => {
+const ViewCategory = () => {
   const theme = useTheme();
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams();
   const navigate = useNavigate();
-  
+
   // State for category
-  const [category, setCategory] = useState<Category | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [imageDialogOpen, setImageDialogOpen] = useState<boolean>(false);
+  const [category, setCategory] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [imageDialogOpen, setImageDialogOpen] = useState(false);
 
   // Fetch category data (replace with API call in real implementation)
   useEffect(() => {
@@ -48,54 +37,54 @@ const ViewCategory: React.FC = () => {
       try {
         setLoading(true);
         // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 800));
-        
+        await new Promise((resolve) => setTimeout(resolve, 800));
+
         // Dummy data - in a real app, this would come from an API
-        const dummyCategories: Category[] = [
+        const dummyCategories = [
           {
-            id: '1',
-            name: 'Fruits',
-            description: 'Fresh fruits and vegetables',
-            imageUrl: 'https://via.placeholder.com/600x400?text=Fruits',
+            id: "1",
+            name: "Fruits",
+            description: "Fresh fruits and vegetables",
+            imageUrl: "https://via.placeholder.com/600x400?text=Fruits",
             isActive: true,
-            createdAt: '2023-01-01T10:00:00Z',
-            updatedAt: '2023-01-01T10:00:00Z'
+            createdAt: "2023-01-01T10:00:00Z",
+            updatedAt: "2023-01-01T10:00:00Z",
           },
           {
-            id: '2',
-            name: 'Dairy',
-            description: 'Milk, cheese, and other dairy products',
-            imageUrl: 'https://via.placeholder.com/600x400?text=Dairy',
+            id: "2",
+            name: "Dairy",
+            description: "Milk, cheese, and other dairy products",
+            imageUrl: "https://via.placeholder.com/600x400?text=Dairy",
             isActive: true,
-            createdAt: '2023-01-02T11:00:00Z',
-            updatedAt: '2023-01-05T09:00:00Z'
+            createdAt: "2023-01-02T11:00:00Z",
+            updatedAt: "2023-01-05T09:00:00Z",
           },
           {
-            id: '3',
-            name: 'Bakery',
-            description: 'Bread, cakes, and pastries',
-            imageUrl: 'https://via.placeholder.com/600x400?text=Bakery',
+            id: "3",
+            name: "Bakery",
+            description: "Bread, cakes, and pastries",
+            imageUrl: "https://via.placeholder.com/600x400?text=Bakery",
             isActive: false,
-            createdAt: '2023-01-03T12:00:00Z',
-            updatedAt: '2023-01-10T15:00:00Z'
+            createdAt: "2023-01-03T12:00:00Z",
+            updatedAt: "2023-01-10T15:00:00Z",
           },
         ];
-        
-        const foundCategory = dummyCategories.find(cat => cat.id === id);
-        
+
+        const foundCategory = dummyCategories.find((cat) => cat.id === id);
+
         if (foundCategory) {
           setCategory(foundCategory);
         } else {
-          setError('Category not found');
+          setError("Category not found");
         }
-        
+
         setLoading(false);
       } catch (err) {
-        setError('Failed to fetch category details');
+        setError("Failed to fetch category details");
         setLoading(false);
       }
     };
-    
+
     fetchCategory();
   }, [id]);
 
@@ -112,9 +101,9 @@ const ViewCategory: React.FC = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: "flex" }}>
       <Sidebar />
-      
+
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Box sx={{ mb: 3 }}>
           <IconButton onClick={handleBack} sx={{ mr: 1 }}>
@@ -124,9 +113,9 @@ const ViewCategory: React.FC = () => {
             Category Details
           </Typography>
         </Box>
-        
+
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+          <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
             <CircularProgress />
           </Box>
         ) : error ? (
@@ -143,31 +132,37 @@ const ViewCategory: React.FC = () => {
                   image={category.imageUrl}
                   alt={category.name}
                   onClick={handleImageClick}
-                  sx={{ cursor: 'pointer', objectFit: 'cover' }}
+                  sx={{ cursor: "pointer", objectFit: "cover" }}
                 />
                 <CardContent>
-                  <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+                  <Box
+                    sx={{ display: "flex", justifyContent: "center", mb: 2 }}
+                  >
                     <Chip
-                      label={category.isActive ? 'Active' : 'Inactive'}
-                      color={category.isActive ? 'success' : 'error'}
+                      label={category.isActive ? "Active" : "Inactive"}
+                      color={category.isActive ? "success" : "error"}
                       variant="outlined"
                       size="medium"
                     />
                   </Box>
-                  <Typography variant="body2" color="text.secondary" align="center">
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    align="center"
+                  >
                     Category ID: {category.id}
                   </Typography>
                 </CardContent>
               </Card>
             </Grid>
-            
+
             <Grid item xs={12} md={8}>
               <Card>
                 <CardContent>
                   <Typography variant="h5" gutterBottom>
                     {category.name}
                   </Typography>
-                  
+
                   <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
                     Description
                   </Typography>
@@ -176,7 +171,7 @@ const ViewCategory: React.FC = () => {
                       {category.description}
                     </Typography>
                   </Paper>
-                  
+
                   <Grid container spacing={2}>
                     <Grid item xs={6}>
                       <Typography variant="subtitle1" gutterBottom>
@@ -200,17 +195,26 @@ const ViewCategory: React.FC = () => {
             </Grid>
           </Grid>
         ) : null}
-        
+
         {/* Image Preview Dialog */}
-        <Dialog open={imageDialogOpen} onClose={handleCloseImageDialog} maxWidth="md" fullWidth>
+        <Dialog
+          open={imageDialogOpen}
+          onClose={handleCloseImageDialog}
+          maxWidth="md"
+          fullWidth
+        >
           <DialogTitle>{category?.name} Image</DialogTitle>
           <DialogContent>
             {category && (
-              <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Box sx={{ display: "flex", justifyContent: "center" }}>
                 <img
                   src={category.imageUrl}
                   alt={category.name}
-                  style={{ maxWidth: '100%', maxHeight: '70vh', objectFit: 'contain' }}
+                  style={{
+                    maxWidth: "100%",
+                    maxHeight: "70vh",
+                    objectFit: "contain",
+                  }}
                 />
               </Box>
             )}

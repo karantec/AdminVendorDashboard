@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -24,57 +24,34 @@ import {
   InputAdornment,
   Pagination,
   CircularProgress,
-  useTheme
-} from '@mui/material';
-import {
-  Search,
-  Add,
-  MoreVert,
-  Edit,
-  Delete,
-  CheckCircle,
-  Cancel,
-  Refresh
-} from '@mui/icons-material';
-import { styled } from '@mui/system';
+  useTheme,
+} from "@mui/material";
+import { Search, Add, MoreVert, Edit, Delete } from "@mui/icons-material";
+import { styled } from "@mui/system";
 
-// Types
-interface Vendor {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  storeName: string;
-  address: string;
-  status: 'active' | 'inactive' | 'pending';
-  joinDate: string;
-  lastActive: string;
-}
-
-// Styled components
 const PageContainer = styled(Box)({
-  display: 'flex',
-  flexDirection: 'column',
-  height: '100%',
-  padding: '24px',
+  display: "flex",
+  flexDirection: "column",
+  height: "100%",
+  padding: "24px",
 });
 
 const Header = styled(Box)({
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: '24px',
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: "24px",
 });
 
 const ActionBar = styled(Box)({
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: '16px',
-  gap: '16px',
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: "16px",
+  gap: "16px",
 });
 
-const StatusChip = styled(Chip)<{ status: Vendor['status'] }>(({ theme, status }) => {
+const StatusChip = styled(Chip)(({ theme, status }) => {
   const statusStyles = {
     active: {
       backgroundColor: theme.palette.success.light,
@@ -96,154 +73,91 @@ const StatusChip = styled(Chip)<{ status: Vendor['status'] }>(({ theme, status }
   };
 });
 
-
-// Dummy data
-const dummyVendors: Vendor[] = [
+const dummyVendors = [
   {
-    id: '1',
-    name: 'Fresh Mart',
-    email: 'freshmart@example.com',
-    phone: '+1 234 567 8901',
-    storeName: 'Fresh Mart Supermarket',
-    address: '123 Main St, Anytown, USA',
-    status: 'active',
-    joinDate: '2023-01-15',
-    lastActive: '2023-06-20',
+    id: "1",
+    name: "Fresh Mart",
+    email: "fresh@example.com",
+    phone: "123",
+    storeName: "Fresh Mart Supermarket",
+    address: "Addr1",
+    status: "active",
+    joinDate: "2023-01-01",
+    lastActive: "2023-05-01",
   },
   {
-    id: '2',
-    name: 'Quick Grocery',
-    email: 'quickgrocery@example.com',
-    phone: '+1 345 678 9012',
-    storeName: 'Quick Grocery Store',
-    address: '456 Oak Ave, Somewhere, USA',
-    status: 'inactive',
-    joinDate: '2023-02-10',
-    lastActive: '2023-05-15',
-  },
-  {
-    id: '3',
-    name: 'Organic Delights',
-    email: 'organic@example.com',
-    phone: '+1 456 789 0123',
-    storeName: 'Organic Delights Market',
-    address: '789 Pine Rd, Nowhere, USA',
-    status: 'pending',
-    joinDate: '2023-03-05',
-    lastActive: '2023-06-18',
-  },
-  {
-    id: '4',
-    name: 'Corner Store',
-    email: 'cornerstore@example.com',
-    phone: '+1 567 890 1234',
-    storeName: 'Neighborhood Corner Store',
-    address: '321 Elm St, Anywhere, USA',
-    status: 'active',
-    joinDate: '2023-01-28',
-    lastActive: '2023-06-19',
-  },
-  {
-    id: '5',
-    name: 'Bulk Foods',
-    email: 'bulkfoods@example.com',
-    phone: '+1 678 901 2345',
-    storeName: 'Bulk Foods Warehouse',
-    address: '654 Maple Dr, Everywhere, USA',
-    status: 'active',
-    joinDate: '2023-04-12',
-    lastActive: '2023-06-21',
+    id: "2",
+    name: "Quick Grocery",
+    email: "quick@example.com",
+    phone: "234",
+    storeName: "Quick Grocery",
+    address: "Addr2",
+    status: "inactive",
+    joinDate: "2023-01-01",
+    lastActive: "2023-05-01",
   },
 ];
 
-const VendorAccountManagement: React.FC = () => {
+const VendorAccountManagement = () => {
   const theme = useTheme();
-  const [vendors, setVendors] = useState<Vendor[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [openDialog, setOpenDialog] = useState<boolean>(false);
-  const [currentVendor, setCurrentVendor] = useState<Vendor | null>(null);
-  const [isEditMode, setIsEditMode] = useState<boolean>(false);
-  const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
-  const [snackbarMessage, setSnackbarMessage] = useState<string>('');
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedVendorId, setSelectedVendorId] = useState<string | null>(null);
-  const [page, setPage] = useState<number>(1);
+  const [vendors, setVendors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [openDialog, setOpenDialog] = useState(false);
+  const [currentVendor, setCurrentVendor] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedVendorId, setSelectedVendorId] = useState(null);
+  const [page, setPage] = useState(1);
   const rowsPerPage = 5;
 
-  // Fetch vendors (simulating API call)
   useEffect(() => {
-    const fetchVendors = () => {
-      setLoading(true);
-      // Simulate API call
-      setTimeout(() => {
-        setVendors(dummyVendors);
-        setLoading(false);
-      }, 1000);
-    };
-
-    fetchVendors();
+    setLoading(true);
+    setTimeout(() => {
+      setVendors(dummyVendors);
+      setLoading(false);
+    }, 1000);
   }, []);
 
-  // Handle search
-  const filteredVendors = vendors.filter(vendor =>
-    vendor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    vendor.storeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    vendor.email.toLowerCase().includes(searchTerm.toLowerCase())
+  const filtered = vendors.filter(
+    (v) =>
+      v.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      v.storeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      v.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Pagination
-  const paginatedVendors = filteredVendors.slice(
+  const paginated = filtered.slice(
     (page - 1) * rowsPerPage,
     page * rowsPerPage
   );
 
-  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
-    setPage(value);
+  const openMenu = (e, id) => {
+    setAnchorEl(e.currentTarget);
+    setSelectedVendorId(id);
   };
 
-  // Menu actions
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, vendorId: string) => {
-    setAnchorEl(event.currentTarget);
-    setSelectedVendorId(vendorId);
-  };
-
-  const handleMenuClose = () => {
+  const closeMenu = () => {
     setAnchorEl(null);
     setSelectedVendorId(null);
   };
 
   const handleEdit = () => {
-    const vendor = vendors.find(v => v.id === selectedVendorId);
+    const vendor = vendors.find((v) => v.id === selectedVendorId);
     if (vendor) {
       setCurrentVendor(vendor);
       setIsEditMode(true);
       setOpenDialog(true);
     }
-    handleMenuClose();
+    closeMenu();
   };
 
   const handleDelete = () => {
-    setVendors(vendors.filter(v => v.id !== selectedVendorId));
-    setSnackbarMessage('Vendor deleted successfully');
+    setVendors(vendors.filter((v) => v.id !== selectedVendorId));
+    setSnackbarMessage("Deleted");
     setSnackbarOpen(true);
-    handleMenuClose();
-  };
-
-  const handleStatusChange = (newStatus: Vendor['status']) => {
-    setVendors(vendors.map(v =>
-      v.id === selectedVendorId ? { ...v, status: newStatus } : v
-    ));
-    setSnackbarMessage(`Vendor status updated to ${newStatus}`);
-    setSnackbarOpen(true);
-    handleMenuClose();
-  };
-
-  // Dialog handlers
-  const handleDialogOpen = () => {
-    setCurrentVendor(null);
-    setIsEditMode(false);
-    setOpenDialog(true);
+    closeMenu();
   };
 
   const handleDialogClose = () => {
@@ -251,74 +165,61 @@ const VendorAccountManagement: React.FC = () => {
     setCurrentVendor(null);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (currentVendor) {
-      setCurrentVendor({ ...currentVendor, [name]: value });
-    } else {
-      setCurrentVendor({
-        id: '',
-        name: '',
-        email: '',
-        phone: '',
-        storeName: '',
-        address: '',
-        status: 'pending',
-        joinDate: new Date().toISOString().split('T')[0],
-        lastActive: new Date().toISOString().split('T')[0],
-        [name]: value
-      } as Vendor);
-    }
+    setCurrentVendor((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = () => {
     if (isEditMode && currentVendor) {
-      setVendors(vendors.map(v => v.id === currentVendor.id ? currentVendor : v));
-      setSnackbarMessage('Vendor updated successfully');
+      setVendors(
+        vendors.map((v) => (v.id === currentVendor.id ? currentVendor : v))
+      );
+      setSnackbarMessage("Updated");
     } else if (currentVendor) {
       const newVendor = {
         ...currentVendor,
         id: (vendors.length + 1).toString(),
       };
       setVendors([...vendors, newVendor]);
-      setSnackbarMessage('Vendor added successfully');
+      setSnackbarMessage("Added");
     }
     setSnackbarOpen(true);
     handleDialogClose();
   };
 
-  const handleRefresh = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSnackbarMessage('Vendor list refreshed');
-      setSnackbarOpen(true);
-    }, 1000);
-  };
-
   return (
     <PageContainer>
       <Header>
-        <Typography variant="h4" component="h1" fontWeight="bold">
-          Manage Vendor Accounts
-        </Typography>
+        <Typography variant="h4">Manage Vendors</Typography>
         <Button
-          variant="contained"
-          color="primary"
+          onClick={() => {
+            setOpenDialog(true);
+            setIsEditMode(false);
+            setCurrentVendor({
+              id: "",
+              name: "",
+              email: "",
+              phone: "",
+              storeName: "",
+              address: "",
+              status: "pending",
+              joinDate: "",
+              lastActive: "",
+            });
+          }}
           startIcon={<Add />}
-          onClick={handleDialogOpen}
+          variant="contained"
         >
-          Add Vendor
+          Add
         </Button>
       </Header>
 
       <ActionBar>
         <TextField
-          variant="outlined"
-          placeholder="Search vendors..."
-          size="small"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search..."
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -326,206 +227,96 @@ const VendorAccountManagement: React.FC = () => {
               </InputAdornment>
             ),
           }}
-          sx={{ width: '300px' }}
         />
-        <Box display="flex" gap={1}>
-          <Button
-            variant="outlined"
-            startIcon={<Refresh />}
-            onClick={handleRefresh}
-            disabled={loading}
-          >
-            Refresh
-          </Button>
-        </Box>
       </ActionBar>
 
       {loading ? (
-        <Box display="flex" justifyContent="center" alignItems="center" height="300px">
-          <CircularProgress />
-        </Box>
+        <CircularProgress />
       ) : (
         <>
-          <TableContainer component={Paper} elevation={3}>
+          <TableContainer component={Paper}>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Vendor</TableCell>
-                  <TableCell>Store Name</TableCell>
-                  <TableCell>Contact</TableCell>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Store</TableCell>
+                  <TableCell>Email</TableCell>
                   <TableCell>Status</TableCell>
-                  <TableCell>Join Date</TableCell>
-                  <TableCell>Last Active</TableCell>
-                  <TableCell align="right">Actions</TableCell>
+                  <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {paginatedVendors.length > 0 ? (
-                  paginatedVendors.map((vendor) => (
-                    <TableRow key={vendor.id} hover>
-                      <TableCell>
-                        <Box display="flex" alignItems="center" gap={2}>
-                          <Avatar>{vendor.name.charAt(0)}</Avatar>
-                          <Box>
-                            <Typography fontWeight="500">{vendor.name}</Typography>
-                            <Typography variant="body2" color="textSecondary">
-                              {vendor.email}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </TableCell>
-                      <TableCell>{vendor.storeName}</TableCell>
-                      <TableCell>{vendor.phone}</TableCell>
-                      <TableCell>
-                        <StatusChip
-                          label={vendor.status}
-                          className={vendor.status}
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell>{vendor.joinDate}</TableCell>
-                      <TableCell>{vendor.lastActive}</TableCell>
-                      <TableCell align="right">
-                        <IconButton
-                          onClick={(e) => handleMenuOpen(e, vendor.id)}
-                        >
-                          <MoreVert />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={7} align="center">
-                      No vendors found
+                {paginated.map((vendor) => (
+                  <TableRow key={vendor.id}>
+                    <TableCell>
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <Avatar>{vendor.name.charAt(0)}</Avatar>
+                        {vendor.name}
+                      </Box>
+                    </TableCell>
+                    <TableCell>{vendor.storeName}</TableCell>
+                    <TableCell>{vendor.email}</TableCell>
+                    <TableCell>
+                      <StatusChip
+                        status={vendor.status}
+                        label={vendor.status}
+                      />
+                    </TableCell>
+                    <TableCell align="right">
+                      <IconButton onClick={(e) => openMenu(e, vendor.id)}>
+                        <MoreVert />
+                      </IconButton>
                     </TableCell>
                   </TableRow>
-                )}
+                ))}
               </TableBody>
             </Table>
           </TableContainer>
-
-          {filteredVendors.length > 0 && (
-            <Box display="flex" justifyContent="center" mt={3}>
-              <Pagination
-                count={Math.ceil(filteredVendors.length / rowsPerPage)}
-                page={page}
-                onChange={handlePageChange}
-                color="primary"
-              />
-            </Box>
-          )}
+          <Pagination
+            count={Math.ceil(filtered.length / rowsPerPage)}
+            page={page}
+            onChange={(e, value) => setPage(value)}
+          />
         </>
       )}
 
-      {/* Vendor Dialog */}
-      <Dialog open={openDialog} onClose={handleDialogClose} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          {isEditMode ? 'Edit Vendor Account' : 'Add New Vendor'}
-        </DialogTitle>
-        <DialogContent dividers>
-          <Box display="flex" flexDirection="column" gap={3} py={2}>
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={closeMenu}>
+        <MenuItem onClick={handleEdit}>
+          <Edit fontSize="small" /> Edit
+        </MenuItem>
+        <MenuItem onClick={handleDelete}>
+          <Delete fontSize="small" /> Delete
+        </MenuItem>
+      </Menu>
+
+      <Dialog open={openDialog} onClose={handleDialogClose} fullWidth>
+        <DialogTitle>{isEditMode ? "Edit" : "Add"} Vendor</DialogTitle>
+        <DialogContent>
+          {["name", "email", "phone", "storeName", "address"].map((field) => (
             <TextField
-              label="Vendor Name"
-              name="name"
-              value={currentVendor?.name || ''}
+              key={field}
+              margin="dense"
+              name={field}
+              label={field.charAt(0).toUpperCase() + field.slice(1)}
+              value={currentVendor?.[field] || ""}
               onChange={handleInputChange}
               fullWidth
-              required
             />
-            <TextField
-              label="Store Name"
-              name="storeName"
-              value={currentVendor?.storeName || ''}
-              onChange={handleInputChange}
-              fullWidth
-              required
-            />
-            <TextField
-              label="Email"
-              name="email"
-              type="email"
-              value={currentVendor?.email || ''}
-              onChange={handleInputChange}
-              fullWidth
-              required
-            />
-            <TextField
-              label="Phone"
-              name="phone"
-              value={currentVendor?.phone || ''}
-              onChange={handleInputChange}
-              fullWidth
-              required
-            />
-            <TextField
-              label="Address"
-              name="address"
-              value={currentVendor?.address || ''}
-              onChange={handleInputChange}
-              fullWidth
-              multiline
-              rows={3}
-              required
-            />
-            {isEditMode && (
-              <TextField
-                label="Status"
-                name="status"
-                value={currentVendor?.status || ''}
-                onChange={handleInputChange}
-                select
-                fullWidth
-                SelectProps={{
-                  native: true,
-                }}
-              >
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="pending">Pending</option>
-              </TextField>
-            )}
-          </Box>
+          ))}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogClose}>Cancel</Button>
-          <Button onClick={handleSubmit} variant="contained" color="primary">
-            {isEditMode ? 'Update' : 'Create'}
+          <Button onClick={handleSubmit} variant="contained">
+            {isEditMode ? "Update" : "Add"}
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Action Menu */}
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
-      >
-        <MenuItem onClick={handleEdit}>
-          <Edit fontSize="small" sx={{ mr: 1 }} />
-          Edit
-        </MenuItem>
-        <MenuItem onClick={() => handleStatusChange('active')}>
-          <CheckCircle fontSize="small" sx={{ mr: 1 }} color="success" />
-          Set Active
-        </MenuItem>
-        <MenuItem onClick={() => handleStatusChange('inactive')}>
-          <Cancel fontSize="small" sx={{ mr: 1 }} color="error" />
-          Set Inactive
-        </MenuItem>
-        <MenuItem onClick={handleDelete}>
-          <Delete fontSize="small" sx={{ mr: 1 }} color="error" />
-          Delete
-        </MenuItem>
-      </Menu>
-
-      {/* Snackbar */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
         onClose={() => setSnackbarOpen(false)}
         message={snackbarMessage}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       />
     </PageContainer>
   );

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -26,102 +26,103 @@ import {
   Snackbar,
   IconButton,
   InputAdornment,
-} from '@mui/material';
-import { 
-  Search, 
-  FilterList, 
-  Sort, 
-  Visibility, 
-  Print, 
-  Download, 
-  Close 
-} from '@mui/icons-material';
-
-// Define TypeScript interfaces
-interface Address {
-  street: string;
-  city: string;
-  state: string;
-  zipCode: string;
-}
-
-interface OrderItem {
-  id: string;
-  name: string;
-  quantity: number;
-  price: number;
-  total: number;
-}
-
-interface Order {
-  id: string;
-  userId: string;
-  customerName: string;
-  storeId: string;
-  storeName: string;
-  orderDate: string;
-  deliveryDate: string | null;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  paymentMethod: 'credit_card' | 'debit_card' | 'paypal' | 'cash_on_delivery';
-  paymentStatus: 'paid' | 'pending' | 'failed';
-  items: OrderItem[];
-  subtotal: number;
-  tax: number;
-  deliveryFee: number;
-  total: number;
-  address: Address;
-  notes: string;
-}
+} from "@mui/material";
+import {
+  Search,
+  FilterList,
+  Sort,
+  Visibility,
+  Print,
+  Download,
+  Close,
+} from "@mui/icons-material";
 
 // Mock data for development
-const generateMockOrders = (): Order[] => {
-  const statuses: Order['status'][] = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
-  const paymentMethods: Order['paymentMethod'][] = ['credit_card', 'debit_card', 'paypal', 'cash_on_delivery'];
-  const paymentStatuses: Order['paymentStatus'][] = ['paid', 'pending', 'failed'];
-  const storeNames = ['Fresh Mart', 'Organic Valley', 'City Grocers', 'Quick Stop', 'Family Market'];
-  
+const generateMockOrders = () => {
+  const statuses = [
+    "pending",
+    "processing",
+    "shipped",
+    "delivered",
+    "cancelled",
+  ];
+  const paymentMethods = [
+    "credit_card",
+    "debit_card",
+    "paypal",
+    "cash_on_delivery",
+  ];
+  const paymentStatuses = ["paid", "pending", "failed"];
+  const storeNames = [
+    "Fresh Mart",
+    "Organic Valley",
+    "City Grocers",
+    "Quick Stop",
+    "Family Market",
+  ];
+
   return Array.from({ length: 50 }, (_, i) => {
     const orderDate = new Date();
     orderDate.setDate(orderDate.getDate() - Math.floor(Math.random() * 30));
-    
+
     const status = statuses[Math.floor(Math.random() * statuses.length)];
     let deliveryDate = null;
-    
-    if (status === 'delivered') {
+
+    if (status === "delivered") {
       const tempDate = new Date(orderDate);
       tempDate.setDate(tempDate.getDate() + Math.floor(Math.random() * 3) + 1);
       deliveryDate = tempDate.toISOString();
     }
-    
-    const items: OrderItem[] = Array.from({ length: Math.floor(Math.random() * 5) + 1 }, (_, j) => ({
-      id: `item-${i}-${j}`,
-      name: ['Milk', 'Bread', 'Eggs', 'Cheese', 'Apples', 'Bananas', 'Chicken', 'Rice'][Math.floor(Math.random() * 8)],
-      quantity: Math.floor(Math.random() * 5) + 1,
-      price: parseFloat((Math.random() * 20 + 1).toFixed(2)),
-      total: 0, // Will calculate below
-    }));
-    
+
+    const items = Array.from(
+      { length: Math.floor(Math.random() * 5) + 1 },
+      (_, j) => ({
+        id: `item-${i}-${j}`,
+        name: [
+          "Milk",
+          "Bread",
+          "Eggs",
+          "Cheese",
+          "Apples",
+          "Bananas",
+          "Chicken",
+          "Rice",
+        ][Math.floor(Math.random() * 8)],
+        quantity: Math.floor(Math.random() * 5) + 1,
+        price: parseFloat((Math.random() * 20 + 1).toFixed(2)),
+        total: 0, // Will calculate below
+      })
+    );
+
     // Calculate totals
-    items.forEach(item => {
+    items.forEach((item) => {
       item.total = item.quantity * item.price;
     });
-    
+
     const subtotal = items.reduce((acc, item) => acc + item.total, 0);
     const tax = parseFloat((subtotal * 0.08).toFixed(2));
     const deliveryFee = parseFloat((Math.random() * 10 + 1).toFixed(2));
     const total = parseFloat((subtotal + tax + deliveryFee).toFixed(2));
-    
+
     return {
       id: `order-${1000 + i}`,
       userId: `user-${100 + i}`,
-      customerName: ['John Doe', 'Jane Smith', 'Robert Brown', 'Lisa Johnson', 'Michael Davis'][Math.floor(Math.random() * 5)],
+      customerName: [
+        "John Doe",
+        "Jane Smith",
+        "Robert Brown",
+        "Lisa Johnson",
+        "Michael Davis",
+      ][Math.floor(Math.random() * 5)],
       storeId: `store-${i % 5}`,
       storeName: storeNames[i % 5],
       orderDate: orderDate.toISOString(),
       deliveryDate,
       status,
-      paymentMethod: paymentMethods[Math.floor(Math.random() * paymentMethods.length)],
-      paymentStatus: paymentStatuses[Math.floor(Math.random() * paymentStatuses.length)],
+      paymentMethod:
+        paymentMethods[Math.floor(Math.random() * paymentMethods.length)],
+      paymentStatus:
+        paymentStatuses[Math.floor(Math.random() * paymentStatuses.length)],
       items,
       subtotal,
       tax,
@@ -129,85 +130,87 @@ const generateMockOrders = (): Order[] => {
       total,
       address: {
         street: `${1000 + Math.floor(Math.random() * 1000)} Main St`,
-        city: ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix'][Math.floor(Math.random() * 5)],
-        state: ['NY', 'CA', 'IL', 'TX', 'AZ'][Math.floor(Math.random() * 5)],
+        city: ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix"][
+          Math.floor(Math.random() * 5)
+        ],
+        state: ["NY", "CA", "IL", "TX", "AZ"][Math.floor(Math.random() * 5)],
         zipCode: `${10000 + Math.floor(Math.random() * 90000)}`,
       },
-      notes: Math.random() > 0.7 ? 'Please leave at the front door' : '',
+      notes: Math.random() > 0.7 ? "Please leave at the front door" : "",
     };
   });
 };
 
 // Status color mapping for visual indication
-const getStatusColor = (status: Order['status']) => {
+const getStatusColor = (status) => {
   switch (status) {
-    case 'pending':
-      return '#FFA500'; // Orange
-    case 'processing':
-      return '#3498DB'; // Blue
-    case 'shipped':
-      return '#9B59B6'; // Purple
-    case 'delivered':
-      return '#2ECC71'; // Green
-    case 'cancelled':
-      return '#E74C3C'; // Red
+    case "pending":
+      return "#FFA500"; // Orange
+    case "processing":
+      return "#3498DB"; // Blue
+    case "shipped":
+      return "#9B59B6"; // Purple
+    case "delivered":
+      return "#2ECC71"; // Green
+    case "cancelled":
+      return "#E74C3C"; // Red
     default:
-      return '#95A5A6'; // Grey
+      return "#95A5A6"; // Grey
   }
 };
 
 // Payment status color mapping
-const getPaymentStatusColor = (status: Order['paymentStatus']) => {
+const getPaymentStatusColor = (status) => {
   switch (status) {
-    case 'paid':
-      return '#2ECC71'; // Green
-    case 'pending':
-      return '#FFA500'; // Orange
-    case 'failed':
-      return '#E74C3C'; // Red
+    case "paid":
+      return "#2ECC71"; // Green
+    case "pending":
+      return "#FFA500"; // Orange
+    case "failed":
+      return "#E74C3C"; // Red
     default:
-      return '#95A5A6'; // Grey
+      return "#95A5A6"; // Grey
   }
 };
 
 // Format date string to readable format
-const formatDate = (dateString: string | null) => {
-  if (!dateString) return 'N/A';
+const formatDate = (dateString) => {
+  if (!dateString) return "N/A";
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 };
 
 // Main component
-const ViewAllOrders: React.FC = () => {
+const ViewAllOrders = () => {
   // State variables
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState<number>(1);
-  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
-  const [search, setSearch] = useState<string>('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [paymentStatusFilter, setPaymentStatusFilter] = useState<string>('all');
-  const [sortField, setSortField] = useState<keyof Order>('orderDate');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [openDetailsDialog, setOpenDetailsDialog] = useState<boolean>(false);
-  const [openFilterDialog, setOpenFilterDialog] = useState<boolean>(false);
-  const [dateRange, setDateRange] = useState<{start: string; end: string}>({
-    start: '', 
-    end: ''
+  const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState("all");
+  const [sortField, setSortField] = useState("orderDate");
+  const [sortDirection, setSortDirection] = useState("desc");
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
+  const [openFilterDialog, setOpenFilterDialog] = useState(false);
+  const [dateRange, setDateRange] = useState({
+    start: "",
+    end: "",
   });
-  const [snackbar, setSnackbar] = useState<{open: boolean; message: string; severity: 'success' | 'error' | 'info'}>({
+  const [snackbar, setSnackbar] = useState({
     open: false,
-    message: '',
-    severity: 'info'
+    message: "",
+    severity: "info",
   });
 
   // Fetch data (using mock data for now)
@@ -218,10 +221,10 @@ const ViewAllOrders: React.FC = () => {
         // In a real app, this would be an API call
         // const response = await fetch('/api/orders');
         // const data = await response.json();
-        
+
         // Using mock data for development
         const mockData = generateMockOrders();
-        
+
         // Simulate network delay
         setTimeout(() => {
           setOrders(mockData);
@@ -229,7 +232,7 @@ const ViewAllOrders: React.FC = () => {
           setLoading(false);
         }, 800);
       } catch (err) {
-        setError('Failed to fetch orders. Please try again later.');
+        setError("Failed to fetch orders. Please try again later.");
         setLoading(false);
       }
     };
@@ -240,97 +243,104 @@ const ViewAllOrders: React.FC = () => {
   // Apply filters and search
   useEffect(() => {
     let result = [...orders];
-    
+
     // Apply search
     if (search) {
       const searchLower = search.toLowerCase();
-      result = result.filter(order => 
-        order.id.toLowerCase().includes(searchLower) ||
-        order.customerName.toLowerCase().includes(searchLower) ||
-        order.storeName.toLowerCase().includes(searchLower)
+      result = result.filter(
+        (order) =>
+          order.id.toLowerCase().includes(searchLower) ||
+          order.customerName.toLowerCase().includes(searchLower) ||
+          order.storeName.toLowerCase().includes(searchLower)
       );
     }
-    
+
     // Apply status filter
-    if (statusFilter !== 'all') {
-      result = result.filter(order => order.status === statusFilter);
+    if (statusFilter !== "all") {
+      result = result.filter((order) => order.status === statusFilter);
     }
-    
+
     // Apply payment status filter
-    if (paymentStatusFilter !== 'all') {
-      result = result.filter(order => order.paymentStatus === paymentStatusFilter);
+    if (paymentStatusFilter !== "all") {
+      result = result.filter(
+        (order) => order.paymentStatus === paymentStatusFilter
+      );
     }
-    
+
     // Apply date range filter
     if (dateRange.start && dateRange.end) {
       const startDate = new Date(dateRange.start);
       const endDate = new Date(dateRange.end);
       endDate.setHours(23, 59, 59, 999); // Set to end of day
-      
-      result = result.filter(order => {
+
+      result = result.filter((order) => {
         const orderDate = new Date(order.orderDate);
         return orderDate >= startDate && orderDate <= endDate;
       });
     }
-    
+
     // Apply sorting
     result.sort((a, b) => {
       const fieldA = a[sortField];
       const fieldB = b[sortField];
-      
-      if (typeof fieldA === 'string' && typeof fieldB === 'string') {
-        return sortDirection === 'asc' 
+
+      if (typeof fieldA === "string" && typeof fieldB === "string") {
+        return sortDirection === "asc"
           ? fieldA.localeCompare(fieldB)
           : fieldB.localeCompare(fieldA);
       }
-      
-      if (typeof fieldA === 'number' && typeof fieldB === 'number') {
-        return sortDirection === 'asc'
-          ? fieldA - fieldB
-          : fieldB - fieldA;
+
+      if (typeof fieldA === "number" && typeof fieldB === "number") {
+        return sortDirection === "asc" ? fieldA - fieldB : fieldB - fieldA;
       }
-      
+
       // Handle date comparison
-      if (sortField === 'orderDate' || sortField === 'deliveryDate') {
-        const dateA = fieldA ? new Date(fieldA as string).getTime() : 0;
-        const dateB = fieldB ? new Date(fieldB as string).getTime() : 0;
-        
-        return sortDirection === 'asc'
-          ? dateA - dateB
-          : dateB - dateA;
+      if (sortField === "orderDate" || sortField === "deliveryDate") {
+        const dateA = fieldA ? new Date(fieldA).getTime() : 0;
+        const dateB = fieldB ? new Date(fieldB).getTime() : 0;
+
+        return sortDirection === "asc" ? dateA - dateB : dateB - dateA;
       }
-      
+
       return 0;
     });
-    
+
     setFilteredOrders(result);
-  }, [orders, search, statusFilter, paymentStatusFilter, dateRange, sortField, sortDirection]);
+  }, [
+    orders,
+    search,
+    statusFilter,
+    paymentStatusFilter,
+    dateRange,
+    sortField,
+    sortDirection,
+  ]);
 
   // Calculate pagination
   const paginatedOrders = filteredOrders.slice(
     (page - 1) * rowsPerPage,
     page * rowsPerPage
   );
-  
+
   const totalPages = Math.ceil(filteredOrders.length / rowsPerPage);
 
   // Handle sort change
-  const handleSort = (field: keyof Order) => {
+  const handleSort = (field) => {
     if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
       setSortField(field);
-      setSortDirection('asc');
+      setSortDirection("asc");
     }
   };
 
   // Handle page change
-  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+  const handlePageChange = (event, value) => {
     setPage(value);
   };
 
   // Handle row click to view details
-  const handleViewDetails = (order: Order) => {
+  const handleViewDetails = (order) => {
     setSelectedOrder(order);
     setOpenDetailsDialog(true);
   };
@@ -339,21 +349,21 @@ const ViewAllOrders: React.FC = () => {
   const handleOpenFilterDialog = () => {
     setOpenFilterDialog(true);
   };
-  
+
   const handleCloseFilterDialog = () => {
     setOpenFilterDialog(false);
   };
-  
+
   const applyFilters = () => {
     setOpenFilterDialog(false);
     // Filters are already applied through useEffect
   };
-  
+
   const resetFilters = () => {
-    setStatusFilter('all');
-    setPaymentStatusFilter('all');
-    setDateRange({ start: '', end: '' });
-    setSearch('');
+    setStatusFilter("all");
+    setPaymentStatusFilter("all");
+    setDateRange({ start: "", end: "" });
+    setSearch("");
     setOpenFilterDialog(false);
   };
 
@@ -361,16 +371,16 @@ const ViewAllOrders: React.FC = () => {
   const exportToPDF = () => {
     setSnackbar({
       open: true,
-      message: 'Export to PDF feature will be implemented in the next phase',
-      severity: 'info'
+      message: "Export to PDF feature will be implemented in the next phase",
+      severity: "info",
     });
   };
-  
+
   const exportToCSV = () => {
     setSnackbar({
       open: true,
-      message: 'Export to CSV feature will be implemented in the next phase',
-      severity: 'info'
+      message: "Export to CSV feature will be implemented in the next phase",
+      severity: "info",
     });
   };
 
@@ -382,9 +392,18 @@ const ViewAllOrders: React.FC = () => {
   // If loading
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "80vh",
+        }}
+      >
         <CircularProgress />
-        <Typography variant="h6" sx={{ ml: 2 }}>Loading orders...</Typography>
+        <Typography variant="h6" sx={{ ml: 2 }}>
+          Loading orders...
+        </Typography>
       </Box>
     );
   }
@@ -406,7 +425,14 @@ const ViewAllOrders: React.FC = () => {
   return (
     <Box sx={{ p: 3 }}>
       {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 3,
+        }}
+      >
         <Typography variant="h4" component="h1" gutterBottom>
           All Orders
         </Typography>
@@ -430,14 +456,22 @@ const ViewAllOrders: React.FC = () => {
       </Box>
 
       {/* Search and Filter Section */}
-      <Box sx={{ display: 'flex', mb: 3, alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          mb: 3,
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 2,
+        }}
+      >
         <TextField
           label="Search"
           variant="outlined"
           size="small"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          sx={{ flexGrow: 1, minWidth: '200px' }}
+          sx={{ flexGrow: 1, minWidth: "200px" }}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -446,18 +480,15 @@ const ViewAllOrders: React.FC = () => {
             ),
             endAdornment: search ? (
               <InputAdornment position="end">
-                <IconButton
-                  size="small"
-                  onClick={() => setSearch('')}
-                >
+                <IconButton size="small" onClick={() => setSearch("")}>
                   <Close fontSize="small" />
                 </IconButton>
               </InputAdornment>
             ) : null,
           }}
         />
-        
-        <FormControl size="small" sx={{ minWidth: '150px' }}>
+
+        <FormControl size="small" sx={{ minWidth: "150px" }}>
           <InputLabel id="status-filter-label">Status</InputLabel>
           <Select
             labelId="status-filter-label"
@@ -473,7 +504,7 @@ const ViewAllOrders: React.FC = () => {
             <MenuItem value="cancelled">Cancelled</MenuItem>
           </Select>
         </FormControl>
-        
+
         <Button
           variant="outlined"
           startIcon={<FilterList />}
@@ -484,27 +515,35 @@ const ViewAllOrders: React.FC = () => {
       </Box>
 
       {/* Stats Summary */}
-      <Box sx={{ display: 'flex', mb: 3, gap: 2, flexWrap: 'wrap' }}>
-        <Paper sx={{ p: 2, flexGrow: 1, minWidth: '150px' }}>
-          <Typography variant="subtitle2" color="text.secondary">Total Orders</Typography>
+      <Box sx={{ display: "flex", mb: 3, gap: 2, flexWrap: "wrap" }}>
+        <Paper sx={{ p: 2, flexGrow: 1, minWidth: "150px" }}>
+          <Typography variant="subtitle2" color="text.secondary">
+            Total Orders
+          </Typography>
           <Typography variant="h5">{orders.length}</Typography>
         </Paper>
-        <Paper sx={{ p: 2, flexGrow: 1, minWidth: '150px' }}>
-          <Typography variant="subtitle2" color="text.secondary">Pending Orders</Typography>
+        <Paper sx={{ p: 2, flexGrow: 1, minWidth: "150px" }}>
+          <Typography variant="subtitle2" color="text.secondary">
+            Pending Orders
+          </Typography>
           <Typography variant="h5">
-            {orders.filter(order => order.status === 'pending').length}
+            {orders.filter((order) => order.status === "pending").length}
           </Typography>
         </Paper>
-        <Paper sx={{ p: 2, flexGrow: 1, minWidth: '150px' }}>
-          <Typography variant="subtitle2" color="text.secondary">Processing Orders</Typography>
+        <Paper sx={{ p: 2, flexGrow: 1, minWidth: "150px" }}>
+          <Typography variant="subtitle2" color="text.secondary">
+            Processing Orders
+          </Typography>
           <Typography variant="h5">
-            {orders.filter(order => order.status === 'processing').length}
+            {orders.filter((order) => order.status === "processing").length}
           </Typography>
         </Paper>
-        <Paper sx={{ p: 2, flexGrow: 1, minWidth: '150px' }}>
-          <Typography variant="subtitle2" color="text.secondary">Delivered Orders</Typography>
+        <Paper sx={{ p: 2, flexGrow: 1, minWidth: "150px" }}>
+          <Typography variant="subtitle2" color="text.secondary">
+            Delivered Orders
+          </Typography>
           <Typography variant="h5">
-            {orders.filter(order => order.status === 'delivered').length}
+            {orders.filter((order) => order.status === "delivered").length}
           </Typography>
         </Paper>
       </Box>
@@ -513,55 +552,115 @@ const ViewAllOrders: React.FC = () => {
       <TableContainer component={Paper} sx={{ mb: 3 }}>
         <Table sx={{ minWidth: 650 }} aria-label="orders table">
           <TableHead>
-            <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-              <TableCell sx={{ fontWeight: 'bold' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
-                     onClick={() => handleSort('id')}>
+            <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
+              <TableCell sx={{ fontWeight: "bold" }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => handleSort("id")}
+                >
                   Order ID
-                  {sortField === 'id' && (
-                    <Sort sx={{ fontSize: 18, transform: sortDirection === 'desc' ? 'rotate(180deg)' : 'none' }} />
+                  {sortField === "id" && (
+                    <Sort
+                      sx={{
+                        fontSize: 18,
+                        transform:
+                          sortDirection === "desc" ? "rotate(180deg)" : "none",
+                      }}
+                    />
                   )}
                 </Box>
               </TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
-                     onClick={() => handleSort('customerName')}>
+              <TableCell sx={{ fontWeight: "bold" }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => handleSort("customerName")}
+                >
                   Customer
-                  {sortField === 'customerName' && (
-                    <Sort sx={{ fontSize: 18, transform: sortDirection === 'desc' ? 'rotate(180deg)' : 'none' }} />
+                  {sortField === "customerName" && (
+                    <Sort
+                      sx={{
+                        fontSize: 18,
+                        transform:
+                          sortDirection === "desc" ? "rotate(180deg)" : "none",
+                      }}
+                    />
                   )}
                 </Box>
               </TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
-                     onClick={() => handleSort('storeName')}>
+              <TableCell sx={{ fontWeight: "bold" }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => handleSort("storeName")}
+                >
                   Store
-                  {sortField === 'storeName' && (
-                    <Sort sx={{ fontSize: 18, transform: sortDirection === 'desc' ? 'rotate(180deg)' : 'none' }} />
+                  {sortField === "storeName" && (
+                    <Sort
+                      sx={{
+                        fontSize: 18,
+                        transform:
+                          sortDirection === "desc" ? "rotate(180deg)" : "none",
+                      }}
+                    />
                   )}
                 </Box>
               </TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
-                     onClick={() => handleSort('orderDate')}>
+              <TableCell sx={{ fontWeight: "bold" }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => handleSort("orderDate")}
+                >
                   Order Date
-                  {sortField === 'orderDate' && (
-                    <Sort sx={{ fontSize: 18, transform: sortDirection === 'desc' ? 'rotate(180deg)' : 'none' }} />
+                  {sortField === "orderDate" && (
+                    <Sort
+                      sx={{
+                        fontSize: 18,
+                        transform:
+                          sortDirection === "desc" ? "rotate(180deg)" : "none",
+                      }}
+                    />
                   )}
                 </Box>
               </TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>Payment</TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
-                     onClick={() => handleSort('total')}>
+              <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Payment</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => handleSort("total")}
+                >
                   Total
-                  {sortField === 'total' && (
-                    <Sort sx={{ fontSize: 18, transform: sortDirection === 'desc' ? 'rotate(180deg)' : 'none' }} />
+                  {sortField === "total" && (
+                    <Sort
+                      sx={{
+                        fontSize: 18,
+                        transform:
+                          sortDirection === "desc" ? "rotate(180deg)" : "none",
+                      }}
+                    />
                   )}
                 </Box>
               </TableCell>
-              <TableCell sx={{ fontWeight: 'bold' }}>Actions</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -569,7 +668,10 @@ const ViewAllOrders: React.FC = () => {
               paginatedOrders.map((order) => (
                 <TableRow
                   key={order.id}
-                  sx={{ '&:hover': { backgroundColor: '#f9f9f9' }, cursor: 'pointer' }}
+                  sx={{
+                    "&:hover": { backgroundColor: "#f9f9f9" },
+                    cursor: "pointer",
+                  }}
                   onClick={() => handleViewDetails(order)}
                 >
                   <TableCell>{order.id}</TableCell>
@@ -578,20 +680,28 @@ const ViewAllOrders: React.FC = () => {
                   <TableCell>{formatDate(order.orderDate)}</TableCell>
                   <TableCell>
                     <Chip
-                      label={order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                      label={
+                        order.status.charAt(0).toUpperCase() +
+                        order.status.slice(1)
+                      }
                       sx={{
                         backgroundColor: getStatusColor(order.status),
-                        color: 'white',
+                        color: "white",
                       }}
                       size="small"
                     />
                   </TableCell>
                   <TableCell>
                     <Chip
-                      label={order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)}
+                      label={
+                        order.paymentStatus.charAt(0).toUpperCase() +
+                        order.paymentStatus.slice(1)
+                      }
                       sx={{
-                        backgroundColor: getPaymentStatusColor(order.paymentStatus),
-                        color: 'white',
+                        backgroundColor: getPaymentStatusColor(
+                          order.paymentStatus
+                        ),
+                        color: "white",
                       }}
                       size="small"
                     />
@@ -625,13 +735,23 @@ const ViewAllOrders: React.FC = () => {
       </TableContainer>
 
       {/* Pagination */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+        }}
+      >
         <Typography variant="body2" color="text.secondary">
-          Showing {Math.min(filteredOrders.length, (page - 1) * rowsPerPage + 1)} to {Math.min(filteredOrders.length, page * rowsPerPage)} of {filteredOrders.length} orders
+          Showing{" "}
+          {Math.min(filteredOrders.length, (page - 1) * rowsPerPage + 1)} to{" "}
+          {Math.min(filteredOrders.length, page * rowsPerPage)} of{" "}
+          {filteredOrders.length} orders
         </Typography>
-        
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <FormControl size="small" sx={{ mr: 2, minWidth: '100px' }}>
+
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <FormControl size="small" sx={{ mr: 2, minWidth: "100px" }}>
             <InputLabel id="rows-per-page-label">Per Page</InputLabel>
             <Select
               labelId="rows-per-page-label"
@@ -648,7 +768,7 @@ const ViewAllOrders: React.FC = () => {
               <MenuItem value={100}>100</MenuItem>
             </Select>
           </FormControl>
-          
+
           <Pagination
             count={totalPages}
             page={page}
@@ -670,8 +790,16 @@ const ViewAllOrders: React.FC = () => {
         {selectedOrder && (
           <>
             <DialogTitle>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="h6">Order Details - {selectedOrder.id}</Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Typography variant="h6">
+                  Order Details - {selectedOrder.id}
+                </Typography>
                 <IconButton onClick={() => setOpenDetailsDialog(false)}>
                   <Close />
                 </IconButton>
@@ -679,99 +807,165 @@ const ViewAllOrders: React.FC = () => {
             </DialogTitle>
             <DialogContent dividers>
               <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle1" gutterBottom>Order Information</Typography>
-                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                <Typography variant="subtitle1" gutterBottom>
+                  Order Information
+                </Typography>
+                <Box
+                  sx={{
+                    display: "grid",
+                    gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                    gap: 2,
+                  }}
+                >
                   <Paper variant="outlined" sx={{ p: 2 }}>
-                    <Typography variant="body2" color="text.secondary">Order Status</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Order Status
+                    </Typography>
                     <Chip
-                      label={selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)}
+                      label={
+                        selectedOrder.status.charAt(0).toUpperCase() +
+                        selectedOrder.status.slice(1)
+                      }
                       sx={{
                         backgroundColor: getStatusColor(selectedOrder.status),
-                        color: 'white',
-                        mt: 1
+                        color: "white",
+                        mt: 1,
                       }}
                     />
                   </Paper>
-                  
+
                   <Paper variant="outlined" sx={{ p: 2 }}>
-                    <Typography variant="body2" color="text.secondary">Payment Status</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Payment Status
+                    </Typography>
                     <Chip
-                      label={selectedOrder.paymentStatus.charAt(0).toUpperCase() + selectedOrder.paymentStatus.slice(1)}
+                      label={
+                        selectedOrder.paymentStatus.charAt(0).toUpperCase() +
+                        selectedOrder.paymentStatus.slice(1)
+                      }
                       sx={{
-                        backgroundColor: getPaymentStatusColor(selectedOrder.paymentStatus),
-                        color: 'white',
-                        mt: 1
+                        backgroundColor: getPaymentStatusColor(
+                          selectedOrder.paymentStatus
+                        ),
+                        color: "white",
+                        mt: 1,
                       }}
                     />
                   </Paper>
-                  
+
                   <Paper variant="outlined" sx={{ p: 2 }}>
-                    <Typography variant="body2" color="text.secondary">Order Date</Typography>
-                    <Typography variant="body1" sx={{ mt: 1 }}>{formatDate(selectedOrder.orderDate)}</Typography>
-                  </Paper>
-                  
-                  <Paper variant="outlined" sx={{ p: 2 }}>
-                    <Typography variant="body2" color="text.secondary">Delivery Date</Typography>
-                    <Typography variant="body1" sx={{ mt: 1 }}>{formatDate(selectedOrder.deliveryDate)}</Typography>
-                  </Paper>
-                  
-                  <Paper variant="outlined" sx={{ p: 2 }}>
-                    <Typography variant="body2" color="text.secondary">Payment Method</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Order Date
+                    </Typography>
                     <Typography variant="body1" sx={{ mt: 1 }}>
-                      {selectedOrder.paymentMethod.split('_').map(word => 
-                        word.charAt(0).toUpperCase() + word.slice(1)
-                      ).join(' ')}
+                      {formatDate(selectedOrder.orderDate)}
                     </Typography>
                   </Paper>
-                  
+
                   <Paper variant="outlined" sx={{ p: 2 }}>
-                    <Typography variant="body2" color="text.secondary">Store</Typography>
-                    <Typography variant="body1" sx={{ mt: 1 }}>{selectedOrder.storeName}</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Delivery Date
+                    </Typography>
+                    <Typography variant="body1" sx={{ mt: 1 }}>
+                      {formatDate(selectedOrder.deliveryDate)}
+                    </Typography>
+                  </Paper>
+
+                  <Paper variant="outlined" sx={{ p: 2 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Payment Method
+                    </Typography>
+                    <Typography variant="body1" sx={{ mt: 1 }}>
+                      {selectedOrder.paymentMethod
+                        .split("_")
+                        .map(
+                          (word) => word.charAt(0).toUpperCase() + word.slice(1)
+                        )
+                        .join(" ")}
+                    </Typography>
+                  </Paper>
+
+                  <Paper variant="outlined" sx={{ p: 2 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Store
+                    </Typography>
+                    <Typography variant="body1" sx={{ mt: 1 }}>
+                      {selectedOrder.storeName}
+                    </Typography>
                   </Paper>
                 </Box>
               </Box>
-              
+
               <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle1" gutterBottom>Customer Information</Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  Customer Information
+                </Typography>
                 <Paper variant="outlined" sx={{ p: 2 }}>
-                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                  <Box
+                    sx={{
+                      display: "grid",
+                      gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                      gap: 2,
+                    }}
+                  >
                     <div>
-                      <Typography variant="body2" color="text.secondary">Customer Name</Typography>
-                      <Typography variant="body1">{selectedOrder.customerName}</Typography>
-                    </div>
-                    
-                    <div>
-                      <Typography variant="body2" color="text.secondary">Customer ID</Typography>
-                      <Typography variant="body1">{selectedOrder.userId}</Typography>
-                    </div>
-                    
-                    <div>
-                      <Typography variant="body2" color="text.secondary">Delivery Address</Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Customer Name
+                      </Typography>
                       <Typography variant="body1">
-                        {selectedOrder.address.street}, {selectedOrder.address.city}, {selectedOrder.address.state} {selectedOrder.address.zipCode}
+                        {selectedOrder.customerName}
                       </Typography>
                     </div>
-                    
+
+                    <div>
+                      <Typography variant="body2" color="text.secondary">
+                        Customer ID
+                      </Typography>
+                      <Typography variant="body1">
+                        {selectedOrder.userId}
+                      </Typography>
+                    </div>
+
+                    <div>
+                      <Typography variant="body2" color="text.secondary">
+                        Delivery Address
+                      </Typography>
+                      <Typography variant="body1">
+                        {selectedOrder.address.street},{" "}
+                        {selectedOrder.address.city},{" "}
+                        {selectedOrder.address.state}{" "}
+                        {selectedOrder.address.zipCode}
+                      </Typography>
+                    </div>
+
                     {selectedOrder.notes && (
                       <div>
-                        <Typography variant="body2" color="text.secondary">Notes</Typography>
-                        <Typography variant="body1">{selectedOrder.notes}</Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Notes
+                        </Typography>
+                        <Typography variant="body1">
+                          {selectedOrder.notes}
+                        </Typography>
                       </div>
                     )}
                   </Box>
                 </Paper>
               </Box>
-              
+
               <Box>
-                <Typography variant="subtitle1" gutterBottom>Order Items</Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  Order Items
+                </Typography>
                 <TableContainer component={Paper} variant="outlined">
                   <Table>
                     <TableHead>
-                      <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-                        <TableCell sx={{ fontWeight: 'bold' }}>Item</TableCell>
-                        <TableCell sx={{ fontWeight: 'bold' }}>Quantity</TableCell>
-                        <TableCell sx={{ fontWeight: 'bold' }}>Price</TableCell>
-                        <TableCell sx={{ fontWeight: 'bold' }}>Total</TableCell>
+                      <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
+                        <TableCell sx={{ fontWeight: "bold" }}>Item</TableCell>
+                        <TableCell sx={{ fontWeight: "bold" }}>
+                          Quantity
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: "bold" }}>Price</TableCell>
+                        <TableCell sx={{ fontWeight: "bold" }}>Total</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -784,10 +978,14 @@ const ViewAllOrders: React.FC = () => {
                         </TableRow>
                       ))}
                       <TableRow>
-                        <TableCell colSpan={3} align="right" sx={{ fontWeight: 'bold' }}>
+                        <TableCell
+                          colSpan={3}
+                          align="right"
+                          sx={{ fontWeight: "bold" }}
+                        >
                           Subtotal
                         </TableCell>
-                        <TableCell sx={{ fontWeight: 'bold' }}>
+                        <TableCell sx={{ fontWeight: "bold" }}>
                           ${selectedOrder.subtotal.toFixed(2)}
                         </TableCell>
                       </TableRow>
@@ -801,13 +999,19 @@ const ViewAllOrders: React.FC = () => {
                         <TableCell colSpan={3} align="right">
                           Delivery Fee
                         </TableCell>
-                        <TableCell>${selectedOrder.deliveryFee.toFixed(2)}</TableCell>
+                        <TableCell>
+                          ${selectedOrder.deliveryFee.toFixed(2)}
+                        </TableCell>
                       </TableRow>
                       <TableRow>
-                        <TableCell colSpan={3} align="right" sx={{ fontWeight: 'bold' }}>
+                        <TableCell
+                          colSpan={3}
+                          align="right"
+                          sx={{ fontWeight: "bold" }}
+                        >
                           Total
                         </TableCell>
-                        <TableCell sx={{ fontWeight: 'bold' }}>
+                        <TableCell sx={{ fontWeight: "bold" }}>
                           ${selectedOrder.total.toFixed(2)}
                         </TableCell>
                       </TableRow>
@@ -818,13 +1022,14 @@ const ViewAllOrders: React.FC = () => {
             </DialogContent>
             <DialogActions>
               <Button onClick={() => setOpenDetailsDialog(false)}>Close</Button>
-              <Button 
-                variant="contained" 
+              <Button
+                variant="contained"
                 onClick={() => {
                   setSnackbar({
                     open: true,
-                    message: 'Order actions will be implemented in the next phase',
-                    severity: 'info'
+                    message:
+                      "Order actions will be implemented in the next phase",
+                    severity: "info",
                   });
                   setOpenDetailsDialog(false);
                 }}
@@ -839,7 +1044,13 @@ const ViewAllOrders: React.FC = () => {
       {/* Filter Dialog */}
       <Dialog open={openFilterDialog} onClose={handleCloseFilterDialog}>
         <DialogTitle>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
             <Typography variant="h6">Advanced Filters</Typography>
             <IconButton onClick={handleCloseFilterDialog}>
               <Close />
@@ -847,9 +1058,19 @@ const ViewAllOrders: React.FC = () => {
           </Box>
         </DialogTitle>
         <DialogContent dividers>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: '400px', pt: 1 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              minWidth: "400px",
+              pt: 1,
+            }}
+          >
             <FormControl fullWidth size="small">
-              <InputLabel id="payment-status-filter-label">Payment Status</InputLabel>
+              <InputLabel id="payment-status-filter-label">
+                Payment Status
+              </InputLabel>
               <Select
                 labelId="payment-status-filter-label"
                 value={paymentStatusFilter}
@@ -862,10 +1083,12 @@ const ViewAllOrders: React.FC = () => {
                 <MenuItem value="failed">Failed</MenuItem>
               </Select>
             </FormControl>
-            
+
             <Box>
-              <Typography variant="body2" gutterBottom>Date Range</Typography>
-              <Box sx={{ display: 'flex', gap: 2 }}>
+              <Typography variant="body2" gutterBottom>
+                Date Range
+              </Typography>
+              <Box sx={{ display: "flex", gap: 2 }}>
                 <TextField
                   label="Start Date"
                   type="date"
@@ -873,7 +1096,9 @@ const ViewAllOrders: React.FC = () => {
                   InputLabelProps={{ shrink: true }}
                   fullWidth
                   value={dateRange.start}
-                  onChange={(e) => setDateRange({...dateRange, start: e.target.value})}
+                  onChange={(e) =>
+                    setDateRange({ ...dateRange, start: e.target.value })
+                  }
                 />
                 <TextField
                   label="End Date"
@@ -882,7 +1107,9 @@ const ViewAllOrders: React.FC = () => {
                   InputLabelProps={{ shrink: true }}
                   fullWidth
                   value={dateRange.end}
-                  onChange={(e) => setDateRange({...dateRange, end: e.target.value})}
+                  onChange={(e) =>
+                    setDateRange({ ...dateRange, end: e.target.value })
+                  }
                 />
               </Box>
             </Box>
@@ -890,7 +1117,9 @@ const ViewAllOrders: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={resetFilters}>Reset All</Button>
-          <Button variant="contained" onClick={applyFilters}>Apply Filters</Button>
+          <Button variant="contained" onClick={applyFilters}>
+            Apply Filters
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -899,12 +1128,12 @@ const ViewAllOrders: React.FC = () => {
         open={snackbar.open}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       >
-        <Alert 
-          onClose={handleCloseSnackbar} 
+        <Alert
+          onClose={handleCloseSnackbar}
           severity={snackbar.severity}
-          sx={{ width: '100%' }}
+          sx={{ width: "100%" }}
         >
           {snackbar.message}
         </Alert>

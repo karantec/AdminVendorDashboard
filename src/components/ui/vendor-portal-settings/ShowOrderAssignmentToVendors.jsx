@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -21,191 +21,179 @@ import {
   TableRow,
   TextField,
   Typography,
-  SelectChangeEvent,
-} from '@mui/material';
-import { Search, FilterList, Refresh } from '@mui/icons-material';
-import { useTheme } from '@mui/material/styles';
-import Sidebar from '../../../layout/AppSidebar'; // Adjust import path as needed
+} from "@mui/material";
+import { Search, FilterList, Refresh } from "@mui/icons-material";
+import { useTheme } from "@mui/material/styles";
+import Sidebar from "../../../layout/AppSidebar"; // Adjust import path as needed
 
-// Define types for our data
-interface OrderAssignment {
-  id: string;
-  orderId: string;
-  customerName: string;
-  vendorName: string;
-  vendorId: string;
-  assignedDate: string;
-  status: 'Pending' | 'Accepted' | 'Rejected' | 'Completed';
-  itemsCount: number;
-  totalAmount: number;
-  deliveryAddress: string;
-}
-
-const ShowOrderAssignmentToVendors: React.FC = () => {
+const ShowOrderAssignmentToVendors = () => {
   const theme = useTheme();
-  
+
   // Dummy data for order assignments
-  const dummyData: OrderAssignment[] = [
+  const dummyData = [
     {
-      id: '1',
-      orderId: 'ORD-1001',
-      customerName: 'John Doe',
-      vendorName: 'Fresh Grocery',
-      vendorId: 'VEND-001',
-      assignedDate: '2023-05-15T10:30:00',
-      status: 'Accepted',
+      id: "1",
+      orderId: "ORD-1001",
+      customerName: "John Doe",
+      vendorName: "Fresh Grocery",
+      vendorId: "VEND-001",
+      assignedDate: "2023-05-15T10:30:00",
+      status: "Accepted",
       itemsCount: 8,
       totalAmount: 125.75,
-      deliveryAddress: '123 Main St, Apt 4B, New York, NY',
+      deliveryAddress: "123 Main St, Apt 4B, New York, NY",
     },
     {
-      id: '2',
-      orderId: 'ORD-1002',
-      customerName: 'Jane Smith',
-      vendorName: 'Quick Mart',
-      vendorId: 'VEND-002',
-      assignedDate: '2023-05-15T11:15:00',
-      status: 'Pending',
+      id: "2",
+      orderId: "ORD-1002",
+      customerName: "Jane Smith",
+      vendorName: "Quick Mart",
+      vendorId: "VEND-002",
+      assignedDate: "2023-05-15T11:15:00",
+      status: "Pending",
       itemsCount: 5,
-      totalAmount: 89.50,
-      deliveryAddress: '456 Oak Ave, Brooklyn, NY',
+      totalAmount: 89.5,
+      deliveryAddress: "456 Oak Ave, Brooklyn, NY",
     },
     {
-      id: '3',
-      orderId: 'ORD-1003',
-      customerName: 'Robert Johnson',
-      vendorName: 'Urban Fresh',
-      vendorId: 'VEND-003',
-      assignedDate: '2023-05-14T09:45:00',
-      status: 'Completed',
+      id: "3",
+      orderId: "ORD-1003",
+      customerName: "Robert Johnson",
+      vendorName: "Urban Fresh",
+      vendorId: "VEND-003",
+      assignedDate: "2023-05-14T09:45:00",
+      status: "Completed",
       itemsCount: 12,
       totalAmount: 210.25,
-      deliveryAddress: '789 Pine St, Queens, NY',
+      deliveryAddress: "789 Pine St, Queens, NY",
     },
     {
-      id: '4',
-      orderId: 'ORD-1004',
-      customerName: 'Emily Davis',
-      vendorName: 'Fresh Grocery',
-      vendorId: 'VEND-001',
-      assignedDate: '2023-05-14T14:20:00',
-      status: 'Rejected',
+      id: "4",
+      orderId: "ORD-1004",
+      customerName: "Emily Davis",
+      vendorName: "Fresh Grocery",
+      vendorId: "VEND-001",
+      assignedDate: "2023-05-14T14:20:00",
+      status: "Rejected",
       itemsCount: 7,
-      totalAmount: 95.30,
-      deliveryAddress: '321 Elm St, Bronx, NY',
+      totalAmount: 95.3,
+      deliveryAddress: "321 Elm St, Bronx, NY",
     },
     {
-      id: '5',
-      orderId: 'ORD-1005',
-      customerName: 'Michael Brown',
-      vendorName: 'Quick Mart',
-      vendorId: 'VEND-002',
-      assignedDate: '2023-05-13T16:50:00',
-      status: 'Completed',
+      id: "5",
+      orderId: "ORD-1005",
+      customerName: "Michael Brown",
+      vendorName: "Quick Mart",
+      vendorId: "VEND-002",
+      assignedDate: "2023-05-13T16:50:00",
+      status: "Completed",
       itemsCount: 3,
-      totalAmount: 45.90,
-      deliveryAddress: '654 Maple Ave, Staten Island, NY',
+      totalAmount: 45.9,
+      deliveryAddress: "654 Maple Ave, Staten Island, NY",
     },
     {
-      id: '6',
-      orderId: 'ORD-1006',
-      customerName: 'Sarah Wilson',
-      vendorName: 'Urban Fresh',
-      vendorId: 'VEND-003',
-      assignedDate: '2023-05-13T12:30:00',
-      status: 'Accepted',
+      id: "6",
+      orderId: "ORD-1006",
+      customerName: "Sarah Wilson",
+      vendorName: "Urban Fresh",
+      vendorId: "VEND-003",
+      assignedDate: "2023-05-13T12:30:00",
+      status: "Accepted",
       itemsCount: 9,
-      totalAmount: 135.60,
-      deliveryAddress: '987 Cedar St, Jersey City, NJ',
+      totalAmount: 135.6,
+      deliveryAddress: "987 Cedar St, Jersey City, NJ",
     },
     {
-      id: '7',
-      orderId: 'ORD-1007',
-      customerName: 'David Taylor',
-      vendorName: 'Fresh Grocery',
-      vendorId: 'VEND-001',
-      assignedDate: '2023-05-12T18:15:00',
-      status: 'Completed',
+      id: "7",
+      orderId: "ORD-1007",
+      customerName: "David Taylor",
+      vendorName: "Fresh Grocery",
+      vendorId: "VEND-001",
+      assignedDate: "2023-05-12T18:15:00",
+      status: "Completed",
       itemsCount: 6,
       totalAmount: 78.45,
-      deliveryAddress: '159 Birch St, Hoboken, NJ',
+      deliveryAddress: "159 Birch St, Hoboken, NJ",
     },
     {
-      id: '8',
-      orderId: 'ORD-1008',
-      customerName: 'Lisa Anderson',
-      vendorName: 'Quick Mart',
-      vendorId: 'VEND-002',
-      assignedDate: '2023-05-12T13:40:00',
-      status: 'Pending',
+      id: "8",
+      orderId: "ORD-1008",
+      customerName: "Lisa Anderson",
+      vendorName: "Quick Mart",
+      vendorId: "VEND-002",
+      assignedDate: "2023-05-12T13:40:00",
+      status: "Pending",
       itemsCount: 4,
-      totalAmount: 62.80,
-      deliveryAddress: '753 Walnut St, Weehawken, NJ',
+      totalAmount: 62.8,
+      deliveryAddress: "753 Walnut St, Weehawken, NJ",
     },
   ];
 
   // State management
-  const [orderAssignments, setOrderAssignments] = useState<OrderAssignment[]>(dummyData);
-  const [filteredData, setFilteredData] = useState<OrderAssignment[]>(dummyData);
+  const [orderAssignments, setOrderAssignments] = useState(dummyData);
+  const [filteredData, setFilteredData] = useState(dummyData);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [vendorFilter, setVendorFilter] = useState<string>('all');
-  const [dateFilter, setDateFilter] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [vendorFilter, setVendorFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("");
 
   // Get unique vendors for filter dropdown
-  const vendors = [...new Set(dummyData.map(item => item.vendorName))];
+  const vendors = [...new Set(dummyData.map((item) => item.vendorName))];
 
   // Filter function
   const applyFilters = () => {
     let result = orderAssignments;
-    
+
     // Apply search term filter
     if (searchTerm) {
-      result = result.filter(item =>
-        item.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.vendorName.toLowerCase().includes(searchTerm.toLowerCase())
+      result = result.filter(
+        (item) =>
+          item.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.vendorName.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-    
+
     // Apply status filter
-    if (statusFilter !== 'all') {
-      result = result.filter(item => item.status === statusFilter);
+    if (statusFilter !== "all") {
+      result = result.filter((item) => item.status === statusFilter);
     }
-    
+
     // Apply vendor filter
-    if (vendorFilter !== 'all') {
-      result = result.filter(item => item.vendorName === vendorFilter);
+    if (vendorFilter !== "all") {
+      result = result.filter((item) => item.vendorName === vendorFilter);
     }
-    
+
     // Apply date filter
     if (dateFilter) {
-      result = result.filter(item => item.assignedDate.startsWith(dateFilter));
+      result = result.filter((item) =>
+        item.assignedDate.startsWith(dateFilter)
+      );
     }
-    
+
     setFilteredData(result);
     setPage(0); // Reset to first page when filters change
   };
 
   // Reset all filters
   const resetFilters = () => {
-    setSearchTerm('');
-    setStatusFilter('all');
-    setVendorFilter('all');
-    setDateFilter('');
+    setSearchTerm("");
+    setStatusFilter("all");
+    setVendorFilter("all");
+    setDateFilter("");
     setFilteredData(orderAssignments);
     setPage(0);
   };
 
   // Handle page change
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
   // Handle rows per page change
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
@@ -216,37 +204,41 @@ const ShowOrderAssignmentToVendors: React.FC = () => {
   }, [searchTerm, statusFilter, vendorFilter, dateFilter, orderAssignments]);
 
   // Get status chip color
-  const getStatusChipColor = (status: string) => {
+  const getStatusChipColor = (status) => {
     switch (status) {
-      case 'Pending':
-        return 'warning';
-      case 'Accepted':
-        return 'primary';
-      case 'Rejected':
-        return 'error';
-      case 'Completed':
-        return 'success';
+      case "Pending":
+        return "warning";
+      case "Accepted":
+        return "primary";
+      case "Rejected":
+        return "error";
+      case "Completed":
+        return "success";
       default:
-        return 'default';
+        return "default";
     }
   };
 
   // Format date for display
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    return (
+      date.toLocaleDateString() +
+      " " +
+      date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    );
   };
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: "flex" }}>
       <Sidebar />
-      
+
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Container maxWidth="xl">
           <Typography variant="h4" gutterBottom sx={{ mb: 4 }}>
             Order Assignment to Vendors
           </Typography>
-          
+
           {/* Filters Card */}
           <Card sx={{ mb: 3 }}>
             <CardContent>
@@ -272,7 +264,7 @@ const ShowOrderAssignmentToVendors: React.FC = () => {
                     <Select
                       value={statusFilter}
                       label="Status"
-                      onChange={(e: SelectChangeEvent) => setStatusFilter(e.target.value as string)}
+                      onChange={(e) => setStatusFilter(e.target.value)}
                     >
                       <MenuItem value="all">All Statuses</MenuItem>
                       <MenuItem value="Pending">Pending</MenuItem>
@@ -288,11 +280,13 @@ const ShowOrderAssignmentToVendors: React.FC = () => {
                     <Select
                       value={vendorFilter}
                       label="Vendor"
-                      onChange={(e: SelectChangeEvent) => setVendorFilter(e.target.value as string)}
+                      onChange={(e) => setVendorFilter(e.target.value)}
                     >
                       <MenuItem value="all">All Vendors</MenuItem>
                       {vendors.map((vendor) => (
-                        <MenuItem key={vendor} value={vendor}>{vendor}</MenuItem>
+                        <MenuItem key={vendor} value={vendor}>
+                          {vendor}
+                        </MenuItem>
                       ))}
                     </Select>
                   </FormControl>
@@ -308,7 +302,13 @@ const ShowOrderAssignmentToVendors: React.FC = () => {
                     onChange={(e) => setDateFilter(e.target.value)}
                   />
                 </Grid>
-                <Grid item xs={12} sm={6} md={2} sx={{ display: 'flex', alignItems: 'center' }}>
+                <Grid
+                  item
+                  xs={12}
+                  sm={6}
+                  md={2}
+                  sx={{ display: "flex", alignItems: "center" }}
+                >
                   <Button
                     variant="outlined"
                     startIcon={<FilterList />}
@@ -328,7 +328,7 @@ const ShowOrderAssignmentToVendors: React.FC = () => {
               </Grid>
             </CardContent>
           </Card>
-          
+
           {/* Summary Cards */}
           <Grid container spacing={3} sx={{ mb: 3 }}>
             <Grid item xs={12} sm={6} md={3}>
@@ -350,7 +350,10 @@ const ShowOrderAssignmentToVendors: React.FC = () => {
                     Pending
                   </Typography>
                   <Typography variant="h5">
-                    {orderAssignments.filter(o => o.status === 'Pending').length}
+                    {
+                      orderAssignments.filter((o) => o.status === "Pending")
+                        .length
+                    }
                   </Typography>
                 </CardContent>
               </Card>
@@ -362,7 +365,10 @@ const ShowOrderAssignmentToVendors: React.FC = () => {
                     Accepted
                   </Typography>
                   <Typography variant="h5">
-                    {orderAssignments.filter(o => o.status === 'Accepted').length}
+                    {
+                      orderAssignments.filter((o) => o.status === "Accepted")
+                        .length
+                    }
                   </Typography>
                 </CardContent>
               </Card>
@@ -374,13 +380,16 @@ const ShowOrderAssignmentToVendors: React.FC = () => {
                     Completed
                   </Typography>
                   <Typography variant="h5">
-                    {orderAssignments.filter(o => o.status === 'Completed').length}
+                    {
+                      orderAssignments.filter((o) => o.status === "Completed")
+                        .length
+                    }
                   </Typography>
                 </CardContent>
               </Card>
             </Grid>
           </Grid>
-          
+
           {/* Orders Table */}
           <Card>
             <CardContent>
@@ -400,13 +409,18 @@ const ShowOrderAssignmentToVendors: React.FC = () => {
                   </TableHead>
                   <TableBody>
                     {filteredData
-                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                      .slice(
+                        page * rowsPerPage,
+                        page * rowsPerPage + rowsPerPage
+                      )
                       .map((order) => (
                         <TableRow key={order.id}>
                           <TableCell>{order.orderId}</TableCell>
                           <TableCell>{order.customerName}</TableCell>
                           <TableCell>{order.vendorName}</TableCell>
-                          <TableCell>{formatDate(order.assignedDate)}</TableCell>
+                          <TableCell>
+                            {formatDate(order.assignedDate)}
+                          </TableCell>
                           <TableCell>{order.itemsCount}</TableCell>
                           <TableCell>${order.totalAmount.toFixed(2)}</TableCell>
                           <TableCell>
@@ -420,7 +434,9 @@ const ShowOrderAssignmentToVendors: React.FC = () => {
                             <Button
                               variant="outlined"
                               size="small"
-                              onClick={() => console.log('View details', order.id)}
+                              onClick={() =>
+                                console.log("View details", order.id)
+                              }
                             >
                               Details
                             </Button>

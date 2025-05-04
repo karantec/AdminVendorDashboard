@@ -5,28 +5,9 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
 
-// Types
-interface Vendor {
-  id: string;
-  name: string;
-  rating: number;
-  ordersCompleted: number;
-  avgPreparationTime: number;
-  revenue: number;
-  fulfillmentRate: number;
-}
 
-interface OrderMetric {
-  date: string;
-  orders: number;
-  cancellations: number;
-}
 
-interface PerformanceMetric {
-  month: string;
-  revenue: number;
-  rating: number;
-}
+
 
 // Dummy data
 const vendors: Vendor[] = [

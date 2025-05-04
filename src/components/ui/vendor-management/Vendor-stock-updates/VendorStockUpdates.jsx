@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -27,40 +27,39 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  IconButton
-} from '@mui/material';
+  IconButton,
+} from "@mui/material";
 import {
   ExpandMore as ExpandMoreIcon,
   Check as CheckIcon,
   Close as CloseIcon,
   Visibility as VisibilityIcon,
-  Refresh as RefreshIcon
-} from '@mui/icons-material';
-import { mockVendorStockUpdates } from './mockData';
-import { VendorStockUpdate, StockUpdateStatus } from './types';
-import './VendorStockUpdates.css';
+  Refresh as RefreshIcon,
+} from "@mui/icons-material";
+import { mockVendorStockUpdates } from "./mockData";
+import "./VendorStockUpdates.css";
 
-const VendorStockUpdates: React.FC = () => {
-  const [updates, setUpdates] = useState<VendorStockUpdate[]>(mockVendorStockUpdates);
-  const [selectedUpdate, setSelectedUpdate] = useState<VendorStockUpdate | null>(null);
+const VendorStockUpdates = () => {
+  const [updates, setUpdates] = useState(mockVendorStockUpdates);
+  const [selectedUpdate, setSelectedUpdate] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
-  const [action, setAction] = useState<'approve' | 'reject'>('approve');
-  const [notes, setNotes] = useState('');
+  const [action, setAction] = useState("approve");
+  const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const navigate = useNavigate();
 
-  const handleViewDetails = (update: VendorStockUpdate) => {
+  const handleViewDetails = (update) => {
     setSelectedUpdate(update);
     setOpenDialog(true);
   };
 
-  const handleAction = (type: 'approve' | 'reject') => {
+  const handleAction = (type) => {
     setAction(type);
-    if (type === 'approve') {
-      setNotes('');
+    if (type === "approve") {
+      setNotes("");
     }
   };
 
@@ -68,28 +67,32 @@ const VendorStockUpdates: React.FC = () => {
     if (!selectedUpdate) return;
 
     setLoading(true);
-    
+
     // Simulate API call
     setTimeout(() => {
       try {
-        const updatedUpdates = updates.map(update => 
-          update.id === selectedUpdate.id 
-            ? { ...update, status: action === 'approve' ? 'approved' : 'rejected', notes }
+        const updatedUpdates = updates.map((update) =>
+          update.id === selectedUpdate.id
+            ? {
+                ...update,
+                status: action === "approve" ? "approved" : "rejected",
+                notes,
+              }
             : update
         );
-        
+
         setUpdates(updatedUpdates);
         setSnackbarMessage(
-          action === 'approve' 
-            ? 'Stock update approved successfully!' 
-            : 'Stock update rejected successfully!'
+          action === "approve"
+            ? "Stock update approved successfully!"
+            : "Stock update rejected successfully!"
         );
-        setSnackbarSeverity('success');
+        setSnackbarSeverity("success");
         setSnackbarOpen(true);
         setOpenDialog(false);
       } catch (error) {
-        setSnackbarMessage('An error occurred. Please try again.');
-        setSnackbarSeverity('error');
+        setSnackbarMessage("An error occurred. Please try again.");
+        setSnackbarSeverity("error");
         setSnackbarOpen(true);
       } finally {
         setLoading(false);
@@ -100,18 +103,18 @@ const VendorStockUpdates: React.FC = () => {
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setSelectedUpdate(null);
-    setNotes('');
+    setNotes("");
   };
 
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);
   };
 
-  const getStatusChip = (status: StockUpdateStatus) => {
+  const getStatusChip = (status) => {
     switch (status) {
-      case 'approved':
+      case "approved":
         return <Chip label="Approved" color="success" size="small" />;
-      case 'rejected':
+      case "rejected":
         return <Chip label="Rejected" color="error" size="small" />;
       default:
         return <Chip label="Pending" color="warning" size="small" />;
@@ -121,8 +124,8 @@ const VendorStockUpdates: React.FC = () => {
   const refreshData = () => {
     // In a real app, this would fetch fresh data from the API
     setUpdates([...mockVendorStockUpdates]);
-    setSnackbarMessage('Data refreshed successfully!');
-    setSnackbarSeverity('success');
+    setSnackbarMessage("Data refreshed successfully!");
+    setSnackbarSeverity("success");
     setSnackbarOpen(true);
   };
 
@@ -180,7 +183,7 @@ const VendorStockUpdates: React.FC = () => {
                     <IconButton
                       color="primary"
                       onClick={() => handleViewDetails(update)}
-                      disabled={update.status !== 'pending'}
+                      disabled={update.status !== "pending"}
                     >
                       <VisibilityIcon />
                     </IconButton>
@@ -210,7 +213,8 @@ const VendorStockUpdates: React.FC = () => {
             <Box>
               <Box mb={3}>
                 <Typography variant="body1" gutterBottom>
-                  <strong>Submitted:</strong> {new Date(selectedUpdate.submittedAt).toLocaleString()}
+                  <strong>Submitted:</strong>{" "}
+                  {new Date(selectedUpdate.submittedAt).toLocaleString()}
                 </Typography>
                 {selectedUpdate.notes && (
                   <Typography variant="body1" gutterBottom>
@@ -222,14 +226,14 @@ const VendorStockUpdates: React.FC = () => {
               <Typography variant="h6" gutterBottom>
                 Items to Update
               </Typography>
-              
+
               {selectedUpdate.items.map((item) => (
                 <Accordion key={item.id} defaultExpanded>
                   <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                    <Typography sx={{ width: '33%', flexShrink: 0 }}>
+                    <Typography sx={{ width: "33%", flexShrink: 0 }}>
                       {item.productName}
                     </Typography>
-                    <Typography sx={{ color: 'text.secondary' }}>
+                    <Typography sx={{ color: "text.secondary" }}>
                       {item.category}
                     </Typography>
                   </AccordionSummary>
@@ -249,7 +253,9 @@ const VendorStockUpdates: React.FC = () => {
                           <TableCell>{item.currentStock}</TableCell>
                           <TableCell>{item.updatedStock}</TableCell>
                           <TableCell>
-                            {item.updatedStock - item.currentStock > 0 ? '+' : ''}
+                            {item.updatedStock - item.currentStock > 0
+                              ? "+"
+                              : ""}
                             {item.updatedStock - item.currentStock}
                           </TableCell>
                         </TableRow>
@@ -257,10 +263,12 @@ const VendorStockUpdates: React.FC = () => {
                           <TableRow>
                             <TableCell>Price</TableCell>
                             <TableCell>${item.price.toFixed(2)}</TableCell>
-                            <TableCell>${item.updatedPrice.toFixed(2)}</TableCell>
                             <TableCell>
-                              {item.updatedPrice - item.price > 0 ? '+' : ''}
-                              ${(item.updatedPrice - item.price).toFixed(2)}
+                              ${item.updatedPrice.toFixed(2)}
+                            </TableCell>
+                            <TableCell>
+                              {item.updatedPrice - item.price > 0 ? "+" : ""}$
+                              {(item.updatedPrice - item.price).toFixed(2)}
                             </TableCell>
                           </TableRow>
                         )}
@@ -280,7 +288,7 @@ const VendorStockUpdates: React.FC = () => {
                   <InputLabel>Action</InputLabel>
                   <Select
                     value={action}
-                    onChange={(e) => handleAction(e.target.value as 'approve' | 'reject')}
+                    onChange={(e) => handleAction(e.target.value)}
                     label="Action"
                   >
                     <MenuItem value="approve">Approve</MenuItem>
@@ -288,7 +296,7 @@ const VendorStockUpdates: React.FC = () => {
                   </Select>
                 </FormControl>
 
-                {action === 'reject' && (
+                {action === "reject" && (
                   <TextField
                     fullWidth
                     margin="normal"
@@ -310,12 +318,24 @@ const VendorStockUpdates: React.FC = () => {
           </Button>
           <Button
             onClick={handleSubmitAction}
-            color={action === 'approve' ? 'success' : 'error'}
+            color={action === "approve" ? "success" : "error"}
             variant="contained"
             disabled={loading}
-            startIcon={loading ? <CircularProgress size={20} /> : action === 'approve' ? <CheckIcon /> : <CloseIcon />}
+            startIcon={
+              loading ? (
+                <CircularProgress size={20} />
+              ) : action === "approve" ? (
+                <CheckIcon />
+              ) : (
+                <CloseIcon />
+              )
+            }
           >
-            {loading ? 'Processing...' : action === 'approve' ? 'Approve Update' : 'Reject Update'}
+            {loading
+              ? "Processing..."
+              : action === "approve"
+              ? "Approve Update"
+              : "Reject Update"}
           </Button>
         </DialogActions>
       </Dialog>
@@ -325,12 +345,12 @@ const VendorStockUpdates: React.FC = () => {
         open={snackbarOpen}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
         <Alert
           onClose={handleCloseSnackbar}
           severity={snackbarSeverity}
-          sx={{ width: '100%' }}
+          sx={{ width: "100%" }}
         >
           {snackbarMessage}
         </Alert>
