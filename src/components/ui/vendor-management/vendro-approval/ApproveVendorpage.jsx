@@ -1,8 +1,3 @@
-import React, { useState, useEffect } from "react";
-import VendorApprovalCard from "./VendorApprovalCard";
-import axios from "axios";
-import { API_URL } from "../config";
-
 const ApproveVendorPage = () => {
   const [pendingVendors, setPendingVendors] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -137,7 +132,7 @@ const ApproveVendorPage = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-6">
+          {/* <div className="grid grid-cols-1 gap-6">
             {pendingVendors.map((vendor) => (
               <VendorApprovalCard
                 key={vendor._id}
@@ -146,7 +141,7 @@ const ApproveVendorPage = () => {
                 isLoading={isLoading}
               />
             ))}
-          </div>
+          </div> */}
         </div>
       )}
     </div>

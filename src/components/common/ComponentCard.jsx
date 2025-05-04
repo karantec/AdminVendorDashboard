@@ -1,16 +1,6 @@
-interface ComponentCardProps {
-  title: string;
-  children: React.ReactNode;
-  className?: string; // Additional custom classes for styling
-  desc?: string; // Description text
-}
+import React from "react";
 
-const ComponentCard: React.FC<ComponentCardProps> = ({
-  title,
-  children,
-  className = "",
-  desc = "",
-}) => {
+const ComponentCard = ({ title, children, className = "", desc = "" }) => {
   return (
     <div
       className={`rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] ${className}`}

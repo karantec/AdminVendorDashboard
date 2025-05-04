@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Box,
   TextField,
@@ -9,75 +9,63 @@ import {
   InputLabel,
   Grid,
   Button,
-  Typography
-} from '@mui/material';
-import { Search, FilterAlt, Clear } from '@mui/icons-material';
-import { ProductCategory } from './product';
+  Typography,
+} from "@mui/material";
+import { Search, FilterAlt, Clear } from "@mui/icons-material";
 
 // Renamed the interface to avoid naming conflict
-interface ProductFiltersType {
-  searchQuery: string;
-  category: ProductCategory | 'All';
-  minPrice: number | null;
-  maxPrice: number | null;
-  inStock: boolean | null;
-  sortBy: 'name' | 'price' | 'stock' | 'createdAt';
-  sortOrder: 'asc' | 'desc';
-}
-
-interface ProductFiltersProps {
-  filters: ProductFiltersType;
-  onFilterChange: (newFilters: Partial<ProductFiltersType>) => void;
-}
-
-const categories: ProductCategory[] = [
-  'Fruits & Vegetables',
-  'Dairy & Eggs',
-  'Meat & Seafood',
-  'Bakery',
-  'Frozen Foods',
-  'Snacks',
-  'Beverages',
-  'Household',
-  'Other'
+const categories = [
+  "Fruits & Vegetables",
+  "Dairy & Eggs",
+  "Meat & Seafood",
+  "Bakery",
+  "Frozen Foods",
+  "Snacks",
+  "Beverages",
+  "Household",
+  "Other",
 ];
 
-export const ProductFilters: React.FC<ProductFiltersProps> = ({ filters, onFilterChange }) => {
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+export const ProductFilters = ({ filters, onFilterChange }) => {
+  const handleSearchChange = (e) => {
     onFilterChange({ searchQuery: e.target.value });
   };
 
-  const handleCategoryChange = (e: any) => {
-    onFilterChange({ category: e.target.value as ProductCategory | 'All' });
+  const handleCategoryChange = (e) => {
+    onFilterChange({ category: e.target.value });
   };
 
-  const handlePriceChange = (type: 'min' | 'max', value: string) => {
-    const numValue = value === '' ? null : parseFloat(value);
-    onFilterChange(type === 'min' ? { minPrice: numValue } : { maxPrice: numValue });
+  const handlePriceChange = (type, value) => {
+    const numValue = value === "" ? null : parseFloat(value);
+    onFilterChange(
+      type === "min" ? { minPrice: numValue } : { maxPrice: numValue }
+    );
   };
 
-  const handleStockChange = (value: boolean | null) => {
+  const handleStockChange = (value) => {
     onFilterChange({ inStock: value });
   };
 
-  const handleSortChange = (sortBy: ProductFiltersType['sortBy']) => {
+  const handleSortChange = (sortBy) => {
     // Toggle order if same sortBy is clicked
     if (sortBy === filters.sortBy) {
-      onFilterChange({ sortOrder: filters.sortOrder === 'asc' ? 'desc' : 'asc' });
+      onFilterChange({
+        sortOrder: filters.sortOrder === "asc" ? "desc" : "asc",
+      });
     } else {
-      onFilterChange({ sortBy, sortOrder: 'asc' });
+      onFilterChange({ sortBy, sortOrder: "asc" });
     }
   };
 
   const resetFilters = () => {
     onFilterChange({
-      searchQuery: '',
-      category: 'All',
+      searchQuery: "",
+      category: "All",
       minPrice: null,
       maxPrice: null,
       inStock: null,
-      sortBy: 'name',
-      sortOrder: 'asc'
+      sortBy: "name",
+      sortOrder: "asc",
     });
   };
 
@@ -112,7 +100,7 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({ filters, onFilte
               label="Category"
             >
               <MenuItem value="All">All Categories</MenuItem>
-              {categories.map(category => (
+              {categories.map((category) => (
                 <MenuItem key={category} value={category}>
                   {category}
                 </MenuItem>
@@ -125,10 +113,12 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({ filters, onFilte
             fullWidth
             type="number"
             label="Min Price"
-            value={filters.minPrice || ''}
-            onChange={(e) => handlePriceChange('min', e.target.value)}
+            value={filters.minPrice || ""}
+            onChange={(e) => handlePriceChange("min", e.target.value)}
             InputProps={{
-              startAdornment: <InputAdornment position="start">$</InputAdornment>,
+              startAdornment: (
+                <InputAdornment position="start">$</InputAdornment>
+              ),
             }}
           />
         </Grid>
@@ -137,10 +127,12 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({ filters, onFilte
             fullWidth
             type="number"
             label="Max Price"
-            value={filters.maxPrice || ''}
-            onChange={(e) => handlePriceChange('max', e.target.value)}
+            value={filters.maxPrice || ""}
+            onChange={(e) => handlePriceChange("max", e.target.value)}
             InputProps={{
-              startAdornment: <InputAdornment position="start">$</InputAdornment>,
+              startAdornment: (
+                <InputAdornment position="start">$</InputAdornment>
+              ),
             }}
           />
         </Grid>
@@ -148,8 +140,12 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({ filters, onFilte
           <FormControl fullWidth>
             <InputLabel>Stock</InputLabel>
             <Select
-              value={filters.inStock === null ? '' : String(filters.inStock)}
-              onChange={(e) => handleStockChange(e.target.value === '' ? null : e.target.value === 'true')}
+              value={filters.inStock === null ? "" : String(filters.inStock)}
+              onChange={(e) =>
+                handleStockChange(
+                  e.target.value === "" ? null : e.target.value === "true"
+                )
+              }
               label="Stock"
             >
               <MenuItem value="">All</MenuItem>
@@ -159,31 +155,37 @@ export const ProductFilters: React.FC<ProductFiltersProps> = ({ filters, onFilte
           </FormControl>
         </Grid>
         <Grid item xs={12} md={12}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
             <Box>
               <Button
-                variant={filters.sortBy === 'name' ? 'contained' : 'outlined'}
-                onClick={() => handleSortChange('name')}
+                variant={filters.sortBy === "name" ? "contained" : "outlined"}
+                onClick={() => handleSortChange("name")}
                 sx={{ mr: 1 }}
                 startIcon={<FilterAlt />}
               >
-                Name {filters.sortBy === 'name' && `(${filters.sortOrder})`}
+                Name {filters.sortBy === "name" && `(${filters.sortOrder})`}
               </Button>
               <Button
-                variant={filters.sortBy === 'price' ? 'contained' : 'outlined'}
-                onClick={() => handleSortChange('price')}
+                variant={filters.sortBy === "price" ? "contained" : "outlined"}
+                onClick={() => handleSortChange("price")}
                 sx={{ mr: 1 }}
                 startIcon={<FilterAlt />}
               >
-                Price {filters.sortBy === 'price' && `(${filters.sortOrder})`}
+                Price {filters.sortBy === "price" && `(${filters.sortOrder})`}
               </Button>
               <Button
-                variant={filters.sortBy === 'stock' ? 'contained' : 'outlined'}
-                onClick={() => handleSortChange('stock')}
+                variant={filters.sortBy === "stock" ? "contained" : "outlined"}
+                onClick={() => handleSortChange("stock")}
                 sx={{ mr: 1 }}
                 startIcon={<FilterAlt />}
               >
-                Stock {filters.sortBy === 'stock' && `(${filters.sortOrder})`}
+                Stock {filters.sortBy === "stock" && `(${filters.sortOrder})`}
               </Button>
             </Box>
             <Button

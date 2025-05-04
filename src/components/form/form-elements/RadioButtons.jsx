@@ -3,11 +3,12 @@ import ComponentCard from "../../common/ComponentCard";
 import Radio from "../input/Radio";
 
 export default function RadioButtons() {
-  const [selectedValue, setSelectedValue] = useState<string>("option2");
+  const [selectedValue, setSelectedValue] = useState("option2");
 
-  const handleRadioChange = (value: string) => {
+  const handleRadioChange = (value) => {
     setSelectedValue(value);
   };
+
   return (
     <ComponentCard title="Radio Buttons">
       <div className="flex flex-wrap items-center gap-8">

@@ -1,8 +1,7 @@
 import Chart from "react-apexcharts";
-import { ApexOptions } from "apexcharts";
 
 export default function BarChartOne() {
-  const options: ApexOptions = {
+  const options = {
     colors: ["#465fff"],
     chart: {
       fontFamily: "Outfit, sans-serif",
@@ -71,22 +70,23 @@ export default function BarChartOne() {
     fill: {
       opacity: 1,
     },
-
     tooltip: {
       x: {
         show: false,
       },
       y: {
-        formatter: (val: number) => `${val}`,
+        formatter: (val) => `${val}`,
       },
     },
   };
+
   const series = [
     {
       name: "Sales",
       data: [168, 385, 201, 298, 187, 195, 291, 110, 215, 390, 280, 112],
     },
   ];
+
   return (
     <div className="max-w-full overflow-x-auto custom-scrollbar">
       <div id="chartOne" className="min-w-[1000px]">

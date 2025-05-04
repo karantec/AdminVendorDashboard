@@ -1,8 +1,7 @@
 import Chart from "react-apexcharts";
-import { ApexOptions } from "apexcharts";
 
 export default function LineChartOne() {
-  const options: ApexOptions = {
+  const options = {
     legend: {
       show: false, // Hide legend
       position: "top",
@@ -110,6 +109,7 @@ export default function LineChartOne() {
       data: [40, 30, 50, 40, 55, 40, 70, 100, 110, 120, 150, 140],
     },
   ];
+
   return (
     <div className="max-w-full overflow-x-auto custom-scrollbar">
       <div id="chartEight" className="min-w-[1000px]">

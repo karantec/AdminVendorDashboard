@@ -1,13 +1,12 @@
 import Chart from "react-apexcharts";
-import { ApexOptions } from "apexcharts";
 import { useState } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { MoreDotIcon } from "../../icons";
 
 export default function MonthlyTarget() {
-  const series = [75.55];
-  const options: ApexOptions = {
+  const series = [75.55]; // Data type is number[] for the series
+  const options = {
     colors: ["#465FFF"],
     chart: {
       fontFamily: "Outfit, sans-serif",
@@ -54,15 +53,20 @@ export default function MonthlyTarget() {
     },
     labels: ["Progress"],
   };
+
+  // State for dropdown visibility
   const [isOpen, setIsOpen] = useState(false);
 
+  // Function to toggle the dropdown
   function toggleDropdown() {
     setIsOpen(!isOpen);
   }
 
+  // Function to close the dropdown
   function closeDropdown() {
     setIsOpen(false);
   }
+
   return (
     <div className="rounded-2xl border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-white/[0.03]">
       <div className="px-5 pt-5 bg-white shadow-default rounded-2xl pb-11 dark:bg-gray-900 sm:px-6 sm:pt-6">
@@ -99,7 +103,7 @@ export default function MonthlyTarget() {
             </Dropdown>
           </div>
         </div>
-        <div className="relative ">
+        <div className="relative">
           <div className="max-h-[330px]" id="chartDarkStyle">
             <Chart
               options={options}

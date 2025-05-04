@@ -1,7 +1,6 @@
 import { useState } from "react";
 import Chart from "react-apexcharts";
 import ChartTab from "../common/ChartTab";
-import { ApexOptions } from "apexcharts";
 
 export default function AnalyticsChart() {
   const [series] = useState([
@@ -30,7 +29,7 @@ export default function AnalyticsChart() {
   const title = "Analytics Overview";
   const subtitle = "Sales and Revenue Trend";
 
-  const options: ApexOptions = {
+  const options = {
     legend: {
       show: false,
       position: "top",
@@ -40,7 +39,7 @@ export default function AnalyticsChart() {
     chart: {
       fontFamily: "Outfit, sans-serif",
       height: 310,
-      type: "area" as const,
+      type: "area",
       toolbar: {
         show: false,
       },

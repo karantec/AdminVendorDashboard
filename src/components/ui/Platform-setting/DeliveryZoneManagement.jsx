@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -31,171 +31,148 @@ import {
   FormControlLabel,
   Alert,
   Snackbar,
-  CircularProgress
-} from '@mui/material';
+  CircularProgress,
+} from "@mui/material";
 import {
   Add as AddIcon,
   Delete as DeleteIcon,
   Edit as EditIcon,
   Search as SearchIcon,
   FilterList as FilterListIcon,
-  Close as CloseIcon
-} from '@mui/icons-material';
-
-// Types for our data models
-interface DeliveryZone {
-  id: string;
-  name: string;
-  radius: number;
-  status: 'active' | 'inactive';
-  minOrderValue: number;
-  deliveryFee: number;
-  estimatedDeliveryTime: string;
-  storeId: string;
-  zipCodes: string[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface Store {
-  id: string;
-  name: string;
-}
+  Close as CloseIcon,
+} from "@mui/icons-material";
 
 // Mock data for development
-const mockStores: Store[] = [
-  { id: 'store1', name: 'Fresh Mart' },
-  { id: 'store2', name: 'Super Grocery' },
-  { id: 'store3', name: 'Quick Goods' },
-  { id: 'store4', name: 'City Market' },
-  { id: 'store5', name: 'Neighborhood Grocery' },
+const mockStores = [
+  { id: "store1", name: "Fresh Mart" },
+  { id: "store2", name: "Super Grocery" },
+  { id: "store3", name: "Quick Goods" },
+  { id: "store4", name: "City Market" },
+  { id: "store5", name: "Neighborhood Grocery" },
 ];
 
-const mockDeliveryZones: DeliveryZone[] = [
+const mockDeliveryZones = [
   {
-    id: 'zone1',
-    name: 'Downtown Area',
+    id: "zone1",
+    name: "Downtown Area",
     radius: 5,
-    status: 'active',
+    status: "active",
     minOrderValue: 15,
     deliveryFee: 3.99,
-    estimatedDeliveryTime: '15-30 min',
-    storeId: 'store1',
-    zipCodes: ['10001', '10002', '10003'],
-    createdAt: '2024-12-01T10:00:00Z',
-    updatedAt: '2025-01-15T09:30:00Z'
+    estimatedDeliveryTime: "15-30 min",
+    storeId: "store1",
+    zipCodes: ["10001", "10002", "10003"],
+    createdAt: "2024-12-01T10:00:00Z",
+    updatedAt: "2025-01-15T09:30:00Z",
   },
   {
-    id: 'zone2',
-    name: 'Uptown',
+    id: "zone2",
+    name: "Uptown",
     radius: 7,
-    status: 'active',
+    status: "active",
     minOrderValue: 20,
     deliveryFee: 4.99,
-    estimatedDeliveryTime: '20-40 min',
-    storeId: 'store2',
-    zipCodes: ['10010', '10011', '10012'],
-    createdAt: '2024-12-02T11:00:00Z',
-    updatedAt: '2025-01-16T08:45:00Z'
+    estimatedDeliveryTime: "20-40 min",
+    storeId: "store2",
+    zipCodes: ["10010", "10011", "10012"],
+    createdAt: "2024-12-02T11:00:00Z",
+    updatedAt: "2025-01-16T08:45:00Z",
   },
   {
-    id: 'zone3',
-    name: 'Suburb Zone',
+    id: "zone3",
+    name: "Suburb Zone",
     radius: 10,
-    status: 'inactive',
+    status: "inactive",
     minOrderValue: 25,
     deliveryFee: 5.99,
-    estimatedDeliveryTime: '30-50 min',
-    storeId: 'store3',
-    zipCodes: ['10020', '10021', '10022'],
-    createdAt: '2024-12-03T12:00:00Z',
-    updatedAt: '2025-01-17T10:15:00Z'
+    estimatedDeliveryTime: "30-50 min",
+    storeId: "store3",
+    zipCodes: ["10020", "10021", "10022"],
+    createdAt: "2024-12-03T12:00:00Z",
+    updatedAt: "2025-01-17T10:15:00Z",
   },
   {
-    id: 'zone4',
-    name: 'Business District',
+    id: "zone4",
+    name: "Business District",
     radius: 3,
-    status: 'active',
+    status: "active",
     minOrderValue: 10,
     deliveryFee: 2.99,
-    estimatedDeliveryTime: '10-20 min',
-    storeId: 'store1',
-    zipCodes: ['10030', '10031'],
-    createdAt: '2024-12-04T13:00:00Z',
-    updatedAt: '2025-01-18T11:30:00Z'
+    estimatedDeliveryTime: "10-20 min",
+    storeId: "store1",
+    zipCodes: ["10030", "10031"],
+    createdAt: "2024-12-04T13:00:00Z",
+    updatedAt: "2025-01-18T11:30:00Z",
   },
   {
-    id: 'zone5',
-    name: 'West Side',
+    id: "zone5",
+    name: "West Side",
     radius: 8,
-    status: 'active',
+    status: "active",
     minOrderValue: 18,
     deliveryFee: 4.49,
-    estimatedDeliveryTime: '25-45 min',
-    storeId: 'store4',
-    zipCodes: ['10040', '10041', '10042', '10043'],
-    createdAt: '2024-12-05T14:00:00Z',
-    updatedAt: '2025-01-19T12:45:00Z'
+    estimatedDeliveryTime: "25-45 min",
+    storeId: "store4",
+    zipCodes: ["10040", "10041", "10042", "10043"],
+    createdAt: "2024-12-05T14:00:00Z",
+    updatedAt: "2025-01-19T12:45:00Z",
   },
 ];
 
 // Main Component
-const DeliveryZoneManagement: React.FC = () => {
+const DeliveryZoneManagement = () => {
   // State for the delivery zones data
-  const [deliveryZones, setDeliveryZones] = useState<DeliveryZone[]>([]);
-  const [stores, setStores] = useState<Store[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [deliveryZones, setDeliveryZones] = useState([]);
+  const [stores, setStores] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // State for table pagination
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
   // State for search and filters
-  const [searchTerm, setSearchTerm] = useState('');
-  const [storeFilter, setStoreFilter] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [storeFilter, setStoreFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   // State for dialogs
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const [selectedZone, setSelectedZone] = useState<DeliveryZone | null>(null);
+  const [selectedZone, setSelectedZone] = useState(null);
 
   // State for form
-  const [formData, setFormData] = useState<Partial<DeliveryZone>>({
-    name: '',
+  const [formData, setFormData] = useState({
+    name: "",
     radius: 5,
-    status: 'active',
+    status: "active",
     minOrderValue: 15,
     deliveryFee: 3.99,
-    estimatedDeliveryTime: '15-30 min',
-    storeId: '',
-    zipCodes: []
+    estimatedDeliveryTime: "15-30 min",
+    storeId: "",
+    zipCodes: [],
   });
 
   // State for notifications
   const [snackbar, setSnackbar] = useState({
     open: false,
-    message: '',
-    severity: 'success' as 'success' | 'error' | 'info' | 'warning'
+    message: "",
+    severity: "success",
   });
 
   // Fetch data (simulated)
   useEffect(() => {
-    // This simulates loading data from an API
     const fetchData = async () => {
       try {
         setLoading(true);
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // In a real app, you would fetch from your backend API
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
         setDeliveryZones(mockDeliveryZones);
         setStores(mockStores);
         setLoading(false);
       } catch (err) {
-        setError('Failed to load delivery zones data');
+        setError("Failed to load delivery zones data");
         setLoading(false);
       }
     };
@@ -204,22 +181,24 @@ const DeliveryZoneManagement: React.FC = () => {
   }, []);
 
   // Filter delivery zones based on search term and filters
-  const filteredDeliveryZones = deliveryZones.filter(zone => {
-    const matchesSearch = zone.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         zone.zipCodes.some(zip => zip.includes(searchTerm));
-    
-    const matchesStore = storeFilter === 'all' || zone.storeId === storeFilter;
-    const matchesStatus = statusFilter === 'all' || zone.status === statusFilter;
-    
+  const filteredDeliveryZones = deliveryZones.filter((zone) => {
+    const matchesSearch =
+      zone.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      zone.zipCodes.some((zip) => zip.includes(searchTerm));
+
+    const matchesStore = storeFilter === "all" || zone.storeId === storeFilter;
+    const matchesStatus =
+      statusFilter === "all" || zone.status === statusFilter;
+
     return matchesSearch && matchesStore && matchesStatus;
   });
 
   // Pagination handlers
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
@@ -227,25 +206,25 @@ const DeliveryZoneManagement: React.FC = () => {
   // Dialog handlers
   const handleOpenAddDialog = () => {
     setFormData({
-      name: '',
+      name: "",
       radius: 5,
-      status: 'active',
+      status: "active",
       minOrderValue: 15,
       deliveryFee: 3.99,
-      estimatedDeliveryTime: '15-30 min',
-      storeId: stores[0]?.id || '',
-      zipCodes: []
+      estimatedDeliveryTime: "15-30 min",
+      storeId: stores[0]?.id || "",
+      zipCodes: [],
     });
     setOpenAddDialog(true);
   };
 
-  const handleOpenEditDialog = (zone: DeliveryZone) => {
+  const handleOpenEditDialog = (zone) => {
     setSelectedZone(zone);
     setFormData({ ...zone });
     setOpenEditDialog(true);
   };
 
-  const handleOpenDeleteDialog = (zone: DeliveryZone) => {
+  const handleOpenDeleteDialog = (zone) => {
     setSelectedZone(zone);
     setOpenDeleteDialog(true);
   };
@@ -256,24 +235,24 @@ const DeliveryZoneManagement: React.FC = () => {
     setOpenDeleteDialog(false);
     setSelectedZone(null);
     setFormData({
-      name: '',
+      name: "",
       radius: 5,
-      status: 'active',
+      status: "active",
       minOrderValue: 15,
       deliveryFee: 3.99,
-      estimatedDeliveryTime: '15-30 min',
-      storeId: '',
-      zipCodes: []
+      estimatedDeliveryTime: "15-30 min",
+      storeId: "",
+      zipCodes: [],
     });
   };
 
   // Form handlers
-  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
+  const handleFormChange = (e) => {
     const { name, value } = e.target;
     if (name) {
       setFormData({
         ...formData,
-        [name]: value
+        [name]: value,
       });
     }
   };
@@ -281,68 +260,63 @@ const DeliveryZoneManagement: React.FC = () => {
   const handleStatusChange = () => {
     setFormData({
       ...formData,
-      status: formData.status === 'active' ? 'inactive' : 'active'
+      status: formData.status === "active" ? "inactive" : "active",
     });
   };
 
-  const handleZipCodesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleZipCodesChange = (e) => {
     const zipCodesString = e.target.value;
-    const zipCodesArray = zipCodesString.split(',').map(zip => zip.trim());
+    const zipCodesArray = zipCodesString.split(",").map((zip) => zip.trim());
     setFormData({
       ...formData,
-      zipCodes: zipCodesArray
+      zipCodes: zipCodesArray,
     });
   };
 
   // CRUD operations
   const handleAddZone = async () => {
     try {
-      // Validate form data
       if (!formData.name || !formData.storeId) {
         setSnackbar({
           open: true,
-          message: 'Please fill all required fields',
-          severity: 'error'
+          message: "Please fill all required fields",
+          severity: "error",
         });
         return;
       }
 
-      // Simulate API call
       setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
-      // Generate a new zone
-      const newZone: DeliveryZone = {
+      const newZone = {
         id: `zone${deliveryZones.length + 1}`,
-        name: formData.name || '',
+        name: formData.name || "",
         radius: formData.radius || 5,
-        status: formData.status as 'active' | 'inactive' || 'active',
+        status: formData.status || "active",
         minOrderValue: formData.minOrderValue || 15,
         deliveryFee: formData.deliveryFee || 3.99,
-        estimatedDeliveryTime: formData.estimatedDeliveryTime || '15-30 min',
-        storeId: formData.storeId || '',
+        estimatedDeliveryTime: formData.estimatedDeliveryTime || "15-30 min",
+        storeId: formData.storeId || "",
         zipCodes: formData.zipCodes || [],
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
 
-      // Update state with new zone
       setDeliveryZones([...deliveryZones, newZone]);
       setLoading(false);
-      
-      // Close dialog and show success notification
+
       handleCloseDialogs();
       setSnackbar({
         open: true,
-        message: 'Delivery zone added successfully',
-        severity: 'success'
+        message: "Delivery zone added successfully",
+        severity: "success",
       });
     } catch (err) {
       setLoading(false);
       setSnackbar({
         open: true,
-        message: 'Failed to add delivery zone',
-        severity: 'error'
+        message: "Failed to add delivery zone",
+        severity: "error",
       });
     }
   };
@@ -352,43 +326,40 @@ const DeliveryZoneManagement: React.FC = () => {
       if (!selectedZone || !formData.name || !formData.storeId) {
         setSnackbar({
           open: true,
-          message: 'Please fill all required fields',
-          severity: 'error'
+          message: "Please fill all required fields",
+          severity: "error",
         });
         return;
       }
 
-      // Simulate API call
       setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
-      // Update the zone
-      const updatedZones = deliveryZones.map(zone => 
-        zone.id === selectedZone.id 
-          ? { 
-              ...zone, 
-              ...formData, 
-              updatedAt: new Date().toISOString() 
-            } as DeliveryZone
+      const updatedZones = deliveryZones.map((zone) =>
+        zone.id === selectedZone.id
+          ? {
+              ...zone,
+              ...formData,
+              updatedAt: new Date().toISOString(),
+            }
           : zone
       );
 
       setDeliveryZones(updatedZones);
       setLoading(false);
-      
-      // Close dialog and show success notification
+
       handleCloseDialogs();
       setSnackbar({
         open: true,
-        message: 'Delivery zone updated successfully',
-        severity: 'success'
+        message: "Delivery zone updated successfully",
+        severity: "success",
       });
     } catch (err) {
       setLoading(false);
       setSnackbar({
         open: true,
-        message: 'Failed to update delivery zone',
-        severity: 'error'
+        message: "Failed to update delivery zone",
+        severity: "error",
       });
     }
   };
@@ -397,44 +368,49 @@ const DeliveryZoneManagement: React.FC = () => {
     try {
       if (!selectedZone) return;
 
-      // Simulate API call
       setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
-      // Filter out the deleted zone
-      const updatedZones = deliveryZones.filter(zone => zone.id !== selectedZone.id);
+      const updatedZones = deliveryZones.filter(
+        (zone) => zone.id !== selectedZone.id
+      );
       setDeliveryZones(updatedZones);
       setLoading(false);
-      
-      // Close dialog and show success notification
+
       handleCloseDialogs();
       setSnackbar({
         open: true,
-        message: 'Delivery zone deleted successfully',
-        severity: 'success'
+        message: "Delivery zone deleted successfully",
+        severity: "success",
       });
     } catch (err) {
       setLoading(false);
       setSnackbar({
         open: true,
-        message: 'Failed to delete delivery zone',
-        severity: 'error'
+        message: "Failed to delete delivery zone",
+        severity: "error",
       });
     }
   };
 
-  // Handle snackbar close
   const handleSnackbarClose = () => {
     setSnackbar({
       ...snackbar,
-      open: false
+      open: false,
     });
   };
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       {/* Page Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 4,
+        }}
+      >
         <Typography variant="h4" component="h1" gutterBottom>
           Delivery Zone Management
         </Typography>
@@ -512,9 +488,9 @@ const DeliveryZoneManagement: React.FC = () => {
               variant="outlined"
               startIcon={<FilterListIcon />}
               onClick={() => {
-                setSearchTerm('');
-                setStoreFilter('all');
-                setStatusFilter('all');
+                setSearchTerm("");
+                setStoreFilter("all");
+                setStatusFilter("all");
               }}
             >
               Reset
@@ -524,7 +500,7 @@ const DeliveryZoneManagement: React.FC = () => {
       </Paper>
 
       {/* Main Content/Data Table */}
-      <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+      <Paper sx={{ width: "100%", overflow: "hidden" }}>
         <TableContainer sx={{ maxHeight: 440 }}>
           <Table stickyHeader aria-label="delivery zones table">
             <TableHead>
@@ -550,50 +526,57 @@ const DeliveryZoneManagement: React.FC = () => {
               ) : filteredDeliveryZones.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} align="center">
-                    <Typography variant="body2">No delivery zones found</Typography>
+                    <Typography variant="body2">
+                      No delivery zones found
+                    </Typography>
                   </TableCell>
                 </TableRow>
               ) : (
                 filteredDeliveryZones
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((zone) => {
-                    const store = stores.find(s => s.id === zone.storeId);
+                    const store = stores.find((s) => s.id === zone.storeId);
                     return (
                       <TableRow hover key={zone.id}>
                         <TableCell>{zone.name}</TableCell>
-                        <TableCell>{store?.name || 'Unknown Store'}</TableCell>
+                        <TableCell>{store?.name || "Unknown Store"}</TableCell>
                         <TableCell>{zone.radius}</TableCell>
                         <TableCell>${zone.minOrderValue.toFixed(2)}</TableCell>
                         <TableCell>${zone.deliveryFee.toFixed(2)}</TableCell>
                         <TableCell>
-                          {zone.zipCodes.length > 2 
-                            ? `${zone.zipCodes.slice(0, 2).join(', ')}... +${zone.zipCodes.length - 2} more`
-                            : zone.zipCodes.join(', ')}
+                          {zone.zipCodes.length > 2
+                            ? `${zone.zipCodes.slice(0, 2).join(", ")}... +${
+                                zone.zipCodes.length - 2
+                              } more`
+                            : zone.zipCodes.join(", ")}
                         </TableCell>
                         <TableCell>
                           <Box
                             sx={{
-                              display: 'inline-block',
+                              display: "inline-block",
                               px: 1,
                               py: 0.5,
                               borderRadius: 1,
-                              backgroundColor: zone.status === 'active' ? 'success.light' : 'error.light',
-                              color: 'white',
+                              backgroundColor:
+                                zone.status === "active"
+                                  ? "success.light"
+                                  : "error.light",
+                              color: "white",
                             }}
                           >
-                            {zone.status === 'active' ? 'Active' : 'Inactive'}
+                            {zone.status === "active" ? "Active" : "Inactive"}
                           </Box>
                         </TableCell>
                         <TableCell>
-                          <IconButton 
-                            color="primary" 
+                          <IconButton
+                            color="primary"
                             onClick={() => handleOpenEditDialog(zone)}
                             size="small"
                           >
                             <EditIcon />
                           </IconButton>
-                          <IconButton 
-                            color="error" 
+                          <IconButton
+                            color="error"
                             onClick={() => handleOpenDeleteDialog(zone)}
                             size="small"
                           >
@@ -619,12 +602,17 @@ const DeliveryZoneManagement: React.FC = () => {
       </Paper>
 
       {/* Add Zone Dialog */}
-      <Dialog open={openAddDialog} onClose={handleCloseDialogs} maxWidth="md" fullWidth>
+      <Dialog
+        open={openAddDialog}
+        onClose={handleCloseDialogs}
+        maxWidth="md"
+        fullWidth
+      >
         <DialogTitle>
           Add New Delivery Zone
           <IconButton
             onClick={handleCloseDialogs}
-            sx={{ position: 'absolute', right: 8, top: 8 }}
+            sx={{ position: "absolute", right: 8, top: 8 }}
           >
             <CloseIcon />
           </IconButton>
@@ -637,7 +625,7 @@ const DeliveryZoneManagement: React.FC = () => {
                 fullWidth
                 label="Zone Name"
                 name="name"
-                value={formData.name || ''}
+                value={formData.name || ""}
                 onChange={handleFormChange}
               />
             </Grid>
@@ -646,7 +634,7 @@ const DeliveryZoneManagement: React.FC = () => {
                 <InputLabel>Store</InputLabel>
                 <Select
                   name="storeId"
-                  value={formData.storeId || ''}
+                  value={formData.storeId || ""}
                   label="Store"
                   onChange={handleFormChange}
                 >
@@ -664,10 +652,10 @@ const DeliveryZoneManagement: React.FC = () => {
                 label="Radius (km)"
                 name="radius"
                 type="number"
-                value={formData.radius || ''}
+                value={formData.radius || ""}
                 onChange={handleFormChange}
                 InputProps={{
-                  inputProps: { min: 1 }
+                  inputProps: { min: 1 },
                 }}
               />
             </Grid>
@@ -677,10 +665,10 @@ const DeliveryZoneManagement: React.FC = () => {
                 label="Minimum Order Value ($)"
                 name="minOrderValue"
                 type="number"
-                value={formData.minOrderValue || ''}
+                value={formData.minOrderValue || ""}
                 onChange={handleFormChange}
                 InputProps={{
-                  inputProps: { min: 0, step: 0.01 }
+                  inputProps: { min: 0, step: 0.01 },
                 }}
               />
             </Grid>
@@ -690,10 +678,10 @@ const DeliveryZoneManagement: React.FC = () => {
                 label="Delivery Fee ($)"
                 name="deliveryFee"
                 type="number"
-                value={formData.deliveryFee || ''}
+                value={formData.deliveryFee || ""}
                 onChange={handleFormChange}
                 InputProps={{
-                  inputProps: { min: 0, step: 0.01 }
+                  inputProps: { min: 0, step: 0.01 },
                 }}
               />
             </Grid>
@@ -702,7 +690,7 @@ const DeliveryZoneManagement: React.FC = () => {
                 fullWidth
                 label="Estimated Delivery Time"
                 name="estimatedDeliveryTime"
-                value={formData.estimatedDeliveryTime || ''}
+                value={formData.estimatedDeliveryTime || ""}
                 onChange={handleFormChange}
                 placeholder="e.g. 15-30 min"
               />
@@ -712,7 +700,7 @@ const DeliveryZoneManagement: React.FC = () => {
                 fullWidth
                 label="Zip Codes (comma separated)"
                 name="zipCodes"
-                value={formData.zipCodes?.join(', ') || ''}
+                value={formData.zipCodes?.join(", ") || ""}
                 onChange={handleZipCodesChange}
                 placeholder="e.g. 10001, 10002, 10003"
               />
@@ -721,36 +709,41 @@ const DeliveryZoneManagement: React.FC = () => {
               <FormControlLabel
                 control={
                   <Switch
-                    checked={formData.status === 'active'}
+                    checked={formData.status === "active"}
                     onChange={handleStatusChange}
                     color="primary"
                   />
                 }
-                label={formData.status === 'active' ? 'Active' : 'Inactive'}
+                label={formData.status === "active" ? "Active" : "Inactive"}
               />
             </Grid>
           </Grid>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialogs}>Cancel</Button>
-          <Button 
-            onClick={handleAddZone} 
-            variant="contained" 
+          <Button
+            onClick={handleAddZone}
+            variant="contained"
             color="primary"
             disabled={loading}
           >
-            {loading ? <CircularProgress size={24} /> : 'Add Zone'}
+            {loading ? <CircularProgress size={24} /> : "Add Zone"}
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Edit Zone Dialog */}
-      <Dialog open={openEditDialog} onClose={handleCloseDialogs} maxWidth="md" fullWidth>
+      <Dialog
+        open={openEditDialog}
+        onClose={handleCloseDialogs}
+        maxWidth="md"
+        fullWidth
+      >
         <DialogTitle>
           Edit Delivery Zone
           <IconButton
             onClick={handleCloseDialogs}
-            sx={{ position: 'absolute', right: 8, top: 8 }}
+            sx={{ position: "absolute", right: 8, top: 8 }}
           >
             <CloseIcon />
           </IconButton>
@@ -763,7 +756,7 @@ const DeliveryZoneManagement: React.FC = () => {
                 fullWidth
                 label="Zone Name"
                 name="name"
-                value={formData.name || ''}
+                value={formData.name || ""}
                 onChange={handleFormChange}
               />
             </Grid>
@@ -772,7 +765,7 @@ const DeliveryZoneManagement: React.FC = () => {
                 <InputLabel>Store</InputLabel>
                 <Select
                   name="storeId"
-                  value={formData.storeId || ''}
+                  value={formData.storeId || ""}
                   label="Store"
                   onChange={handleFormChange}
                 >
@@ -790,10 +783,10 @@ const DeliveryZoneManagement: React.FC = () => {
                 label="Radius (km)"
                 name="radius"
                 type="number"
-                value={formData.radius || ''}
+                value={formData.radius || ""}
                 onChange={handleFormChange}
                 InputProps={{
-                  inputProps: { min: 1 }
+                  inputProps: { min: 1 },
                 }}
               />
             </Grid>
@@ -803,10 +796,10 @@ const DeliveryZoneManagement: React.FC = () => {
                 label="Minimum Order Value ($)"
                 name="minOrderValue"
                 type="number"
-                value={formData.minOrderValue || ''}
+                value={formData.minOrderValue || ""}
                 onChange={handleFormChange}
                 InputProps={{
-                  inputProps: { min: 0, step: 0.01 }
+                  inputProps: { min: 0, step: 0.01 },
                 }}
               />
             </Grid>
@@ -816,10 +809,10 @@ const DeliveryZoneManagement: React.FC = () => {
                 label="Delivery Fee ($)"
                 name="deliveryFee"
                 type="number"
-                value={formData.deliveryFee || ''}
+                value={formData.deliveryFee || ""}
                 onChange={handleFormChange}
                 InputProps={{
-                  inputProps: { min: 0, step: 0.01 }
+                  inputProps: { min: 0, step: 0.01 },
                 }}
               />
             </Grid>
@@ -828,7 +821,7 @@ const DeliveryZoneManagement: React.FC = () => {
                 fullWidth
                 label="Estimated Delivery Time"
                 name="estimatedDeliveryTime"
-                value={formData.estimatedDeliveryTime || ''}
+                value={formData.estimatedDeliveryTime || ""}
                 onChange={handleFormChange}
                 placeholder="e.g. 15-30 min"
               />
@@ -838,7 +831,7 @@ const DeliveryZoneManagement: React.FC = () => {
                 fullWidth
                 label="Zip Codes (comma separated)"
                 name="zipCodes"
-                value={formData.zipCodes?.join(', ') || ''}
+                value={formData.zipCodes?.join(", ") || ""}
                 onChange={handleZipCodesChange}
                 placeholder="e.g. 10001, 10002, 10003"
               />
@@ -847,25 +840,25 @@ const DeliveryZoneManagement: React.FC = () => {
               <FormControlLabel
                 control={
                   <Switch
-                    checked={formData.status === 'active'}
+                    checked={formData.status === "active"}
                     onChange={handleStatusChange}
                     color="primary"
                   />
                 }
-                label={formData.status === 'active' ? 'Active' : 'Inactive'}
+                label={formData.status === "active" ? "Active" : "Inactive"}
               />
             </Grid>
           </Grid>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialogs}>Cancel</Button>
-          <Button 
-            onClick={handleEditZone} 
-            variant="contained" 
+          <Button
+            onClick={handleEditZone}
+            variant="contained"
             color="primary"
             disabled={loading}
           >
-            {loading ? <CircularProgress size={24} /> : 'Save Changes'}
+            {loading ? <CircularProgress size={24} /> : "Save Changes"}
           </Button>
         </DialogActions>
       </Dialog>
@@ -875,33 +868,34 @@ const DeliveryZoneManagement: React.FC = () => {
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete the delivery zone "{selectedZone?.name}"? This action cannot be undone.
+            Are you sure you want to delete the delivery zone "
+            {selectedZone?.name}"? This action cannot be undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialogs}>Cancel</Button>
-          <Button 
-            onClick={handleDeleteZone} 
-            variant="contained" 
+          <Button
+            onClick={handleDeleteZone}
+            variant="contained"
             color="error"
             disabled={loading}
           >
-            {loading ? <CircularProgress size={24} /> : 'Delete'}
+            {loading ? <CircularProgress size={24} /> : "Delete"}
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Snackbar for notifications */}
-      <Snackbar 
-        open={snackbar.open} 
-        autoHideDuration={6000} 
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       >
-        <Alert 
-          onClose={handleSnackbarClose} 
+        <Alert
+          onClose={handleSnackbarClose}
           severity={snackbar.severity}
-          sx={{ width: '100%' }}
+          sx={{ width: "100%" }}
         >
           {snackbar.message}
         </Alert>

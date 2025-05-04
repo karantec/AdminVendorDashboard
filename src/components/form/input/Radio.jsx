@@ -1,15 +1,4 @@
-interface RadioProps {
-  id: string; // Unique ID for the radio button
-  name: string; // Radio group name
-  value: string; // Value of the radio button
-  checked: boolean; // Whether the radio button is checked
-  label: string; // Label for the radio button
-  onChange: (value: string) => void; // Handler for value change
-  className?: string; // Optional additional classes
-  disabled?: boolean; // Optional disabled state for the radio button
-}
-
-const Radio: React.FC<RadioProps> = ({
+const Radio = ({
   id,
   name,
   value,
@@ -22,7 +11,7 @@ const Radio: React.FC<RadioProps> = ({
   return (
     <label
       htmlFor={id}
-      className={`relative flex cursor-pointer  select-none items-center gap-3 text-sm font-medium ${
+      className={`relative flex cursor-pointer select-none items-center gap-3 text-sm font-medium ${
         disabled
           ? "text-gray-300 dark:text-gray-600 cursor-not-allowed"
           : "text-gray-700 dark:text-gray-400"

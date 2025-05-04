@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Table,
   TableBody,
@@ -12,39 +12,39 @@ import {
   Chip,
   Avatar,
   IconButton,
-  Tooltip
-} from '@mui/material';
-import { Edit, Delete, Visibility, ToggleOn, ToggleOff } from '@mui/icons-material';
-import { Product } from './product';
+  Tooltip,
+} from "@mui/material";
+import {
+  Edit,
+  Delete,
+  Visibility,
+  ToggleOn,
+  ToggleOff,
+} from "@mui/icons-material";
 
-interface ProductTableProps {
-  products: Product[];
-  selectedProducts: string[];
-  onSelectProduct: (productId: string) => void;
-  onSelectAll: (checked: boolean) => void;
-}
-
-export const ProductTable: React.FC<ProductTableProps> = ({
+export const ProductTable = ({
   products,
   selectedProducts,
   onSelectProduct,
-  onSelectAll
+  onSelectAll,
 }) => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
-  const isSelected = (id: string) => selectedProducts.indexOf(id) !== -1;
-  const allSelected = products.length > 0 && selectedProducts.length === products.length;
-  const someSelected = selectedProducts.length > 0 && selectedProducts.length < products.length;
+  const isSelected = (id) => selectedProducts.indexOf(id) !== -1;
+  const allSelected =
+    products.length > 0 && selectedProducts.length === products.length;
+  const someSelected =
+    selectedProducts.length > 0 && selectedProducts.length < products.length;
 
   return (
     <Paper>
@@ -74,11 +74,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
               .map((product) => {
                 const isItemSelected = isSelected(product.id);
                 return (
-                  <TableRow
-                    key={product.id}
-                    hover
-                    selected={isItemSelected}
-                  >
+                  <TableRow key={product.id} hover selected={isItemSelected}>
                     <TableCell padding="checkbox">
                       <Checkbox
                         checked={isItemSelected}
@@ -86,20 +82,20 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                       />
                     </TableCell>
                     <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Avatar 
-                          src={product.imageUrl} 
+                      <div style={{ display: "flex", alignItems: "center" }}>
+                        <Avatar
+                          src={product.imageUrl}
                           alt={product.name}
-                          sx={{ mr: 2, width: 56, height: 56 }}
+                          style={{ marginRight: 16, width: 56, height: 56 }}
                           variant="rounded"
                         />
-                        <Box>
-                          <Typography variant="body1">{product.name}</Typography>
-                          <Typography variant="body2" color="textSecondary">
+                        <div>
+                          <div>{product.name}</div>
+                          <div style={{ color: "#888", fontSize: "12px" }}>
                             {product.description.substring(0, 50)}...
-                          </Typography>
-                        </Box>
-                      </Box>
+                          </div>
+                        </div>
+                      </div>
                     </TableCell>
                     <TableCell>
                       <Chip label={product.category} variant="outlined" />
@@ -107,19 +103,17 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                     <TableCell align="right">
                       ${product.price.toFixed(2)}
                     </TableCell>
-                    <TableCell align="right">
-                      {product.stock}
-                    </TableCell>
+                    <TableCell align="right">{product.stock}</TableCell>
                     <TableCell>{product.storeName}</TableCell>
                     <TableCell>
                       <Chip
-                        label={product.isActive ? 'Active' : 'Inactive'}
-                        color={product.isActive ? 'success' : 'error'}
+                        label={product.isActive ? "Active" : "Inactive"}
+                        color={product.isActive ? "success" : "error"}
                         size="small"
                       />
                     </TableCell>
                     <TableCell>
-                      <Box sx={{ display: 'flex' }}>
+                      <div style={{ display: "flex" }}>
                         <Tooltip title="View">
                           <IconButton>
                             <Visibility color="info" />
@@ -130,7 +124,9 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                             <Edit color="primary" />
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title={product.isActive ? 'Deactivate' : 'Activate'}>
+                        <Tooltip
+                          title={product.isActive ? "Deactivate" : "Activate"}
+                        >
                           <IconButton>
                             {product.isActive ? (
                               <ToggleOn color="success" />
@@ -144,7 +140,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                             <Delete color="error" />
                           </IconButton>
                         </Tooltip>
-                      </Box>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );

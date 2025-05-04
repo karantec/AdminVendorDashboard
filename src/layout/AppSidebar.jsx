@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useLocation } from "react-router";
+import { Link, useLocation } from "react-router-dom";
 
 // Assume these icons are imported from an icon library
 import {
@@ -8,19 +8,12 @@ import {
   GridIcon,
   HorizontaLDots,
   PieChartIcon,
-  PlugInIcon
+  PlugInIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
 
-type NavItem = {
-  name: string;
-  icon: React.ReactNode;
-  path?: string;
-  subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
-};
-
-const navItems: NavItem[] = [
+const navItems = [
   {
     icon: <GridIcon />,
     name: "Dashboard",
@@ -28,7 +21,7 @@ const navItems: NavItem[] = [
   },
 ];
 
-const othersItems: NavItem[] = [
+const othersItems = [
   {
     icon: <PieChartIcon />,
     name: "Analytics",
@@ -36,15 +29,27 @@ const othersItems: NavItem[] = [
       { name: "Sales Report", path: "/salesreport", pro: false },
       { name: "Vendor Performance", path: "/vendorperformance", pro: false },
       { name: "Product Popularity", path: "/productpopularity", pro: false },
-      { name: "User Engagment Metrics", path: "/userengagementmetrics", pro: false },
+      {
+        name: "User Engagment Metrics",
+        path: "/userengagementmetrics",
+        pro: false,
+      },
     ],
   },
   {
     icon: <PieChartIcon />,
     name: "Platform Settings",
     subItems: [
-      { name: "Payment Gateway Setting", path: "/paymentgatewaysetting", pro: false },
-      { name: "Delievery Zone Managment", path: "/deliveryzonemanagement", pro: false },
+      {
+        name: "Payment Gateway Setting",
+        path: "/paymentgatewaysetting",
+        pro: false,
+      },
+      {
+        name: "Delievery Zone Managment",
+        path: "/deliveryzonemanagement",
+        pro: false,
+      },
       { name: "Commission Settings", path: "/commissionsetting", pro: false },
       { name: "App Settings", path: "/appsetting", pro: false },
       { name: "System Performance", path: "/performance", pro: false },
@@ -54,10 +59,26 @@ const othersItems: NavItem[] = [
     icon: <PieChartIcon />,
     name: "Vendor Portal Settings",
     subItems: [
-      { name: "Vendor Login Approval", path: "/vendorloginapproval", pro: false },
-      { name: "View Vendor Stock Updates", path: "/viewvendorstockupdates", pro: false },
-      { name: "Process Stock Exchange requests", path: "/processstockexchangerequest", pro: false },
-      { name: "Show order assignment to vendors", path: "/showorderassignmenttovendor", pro: false },
+      {
+        name: "Vendor Login Approval",
+        path: "/vendorloginapproval",
+        pro: false,
+      },
+      {
+        name: "View Vendor Stock Updates",
+        path: "/viewvendorstockupdates",
+        pro: false,
+      },
+      {
+        name: "Process Stock Exchange requests",
+        path: "/processstockexchangerequest",
+        pro: false,
+      },
+      {
+        name: "Show order assignment to vendors",
+        path: "/showorderassignmenttovendor",
+        pro: false,
+      },
       { name: "System Performance", path: "/systemperformance", pro: false },
     ],
   },
@@ -75,7 +96,11 @@ const othersItems: NavItem[] = [
     subItems: [
       { name: "Add New Product", path: "/addproductpage", pro: false },
       { name: "View Products", path: "/viewproduct", pro: false },
-      { name: "Manage Product Pricing", path: "/productpricingmanagement", pro: false },
+      {
+        name: "Manage Product Pricing",
+        path: "/productpricingmanagement",
+        pro: false,
+      },
     ],
   },
   {
@@ -83,8 +108,16 @@ const othersItems: NavItem[] = [
     name: "Vendor Management",
     subItems: [
       { name: "Approve New Vendor", path: "/approvevendorpage", pro: false },
-      { name: "Manage Vendor Accounts", path: "/vendoraccountmanagement", pro: false },
-      { name: "Review Vendor Stock updates", path: "/VendorStockUpdates", pro: false },
+      {
+        name: "Manage Vendor Accounts",
+        path: "/vendoraccountmanagement",
+        pro: false,
+      },
+      {
+        name: "Review Vendor Stock updates",
+        path: "/VendorStockUpdates",
+        pro: false,
+      },
       { name: "View Vendor Analytics", path: "/vendoranalytics", pro: false },
     ],
   },
@@ -118,28 +151,22 @@ const othersItems: NavItem[] = [
   },
 ];
 
-const AppSidebar: React.FC = () => {
+const AppSidebar = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
 
-  // Fix: Change the type to accept both "main" and "others"
-  const [openSubmenu, setOpenSubmenu] = useState<{
-    type: "main" | "others";
-    index: number;
-  } | null>(null);
-  
-  const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>({});
-  const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [openSubmenu, setOpenSubmenu] = useState(null);
+  const [subMenuHeight, setSubMenuHeight] = useState({});
+  const subMenuRefs = useRef({});
 
   const isActive = useCallback(
-    (path: string) => location.pathname === path,
+    (path) => location.pathname === path,
     [location.pathname]
   );
 
   useEffect(() => {
     let submenuMatched = false;
-    
-    // Fix: Check both menu types separately
+
     navItems.forEach((nav, index) => {
       if (nav.subItems) {
         nav.subItems.forEach((subItem) => {
@@ -153,7 +180,7 @@ const AppSidebar: React.FC = () => {
         });
       }
     });
-    
+
     if (!submenuMatched) {
       othersItems.forEach((nav, index) => {
         if (nav.subItems) {
@@ -169,7 +196,7 @@ const AppSidebar: React.FC = () => {
         }
       });
     }
-    
+
     if (!submenuMatched) {
       setOpenSubmenu(null);
     }
@@ -187,7 +214,7 @@ const AppSidebar: React.FC = () => {
     }
   }, [openSubmenu]);
 
-  const handleSubmenuToggle = (index: number, menuType: "main" | "others") => {
+  const handleSubmenuToggle = (index, menuType) => {
     setOpenSubmenu((prevOpenSubmenu) => {
       if (
         prevOpenSubmenu &&
@@ -200,7 +227,7 @@ const AppSidebar: React.FC = () => {
     });
   };
 
-  const renderMenuItems = (items: NavItem[], menuType: "main" | "others") => (
+  const renderMenuItems = (items, menuType) => (
     <ul className="flex flex-col gap-4">
       {items.map((nav, index) => (
         <li key={nav.name}>
@@ -325,91 +352,13 @@ const AppSidebar: React.FC = () => {
 
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
-        ${
-          isExpanded || isMobileOpen
-            ? "w-[290px]"
-            : isHovered
-            ? "w-[290px]"
-            : "w-[90px]"
-        }
-        ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
-        lg:translate-x-0`}
-      onMouseEnter={() => !isExpanded && setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className={`fixed mt-16 flex flex-col lg:mt-4 lg:w-[270px] p-5 bg-white border border-gray-200 shadow-lg`}
     >
-      <div
-        className={`py-8 flex ${
-          !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
-        }`}
-      >
-        <Link to="/">
-          {isExpanded || isHovered || isMobileOpen ? (
-            <>
-              <img
-                className="dark:hidden"
-                src="/images/logo/logo.svg"
-                alt="Logo"
-                width={150}
-                height={40}
-              />
-              <img
-                className="hidden dark:block"
-                src="/images/logo/logo-dark.svg"
-                alt="Logo"
-                width={150}
-                height={40}
-              />
-            </>
-          ) : (
-            <img
-              src="/images/logo/logo-icon.svg"
-              alt="Logo"
-              width={32}
-              height={32}
-            />
-          )}
-        </Link>
-      </div>
-      <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
-        <nav className="mb-6">
-          <div className="flex flex-col gap-4">
-            <div>
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "lg:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "Menu"
-                ) : (
-                  <HorizontaLDots className="size-6" />
-                )}
-              </h2>
-              {renderMenuItems(navItems, "main")}
-            </div>
-            <div className="">
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "lg:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "Others"
-                ) : (
-                  <HorizontaLDots />
-                )}
-              </h2>
-              {renderMenuItems(othersItems, "others")}
-            </div>
-          </div>
-        </nav>
-        {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}
-      </div>
+      <nav className="flex flex-col gap-6">
+        {renderMenuItems(navItems, "main")}
+        {renderMenuItems(othersItems, "others")}
+        <SidebarWidget />
+      </nav>
     </aside>
   );
 };

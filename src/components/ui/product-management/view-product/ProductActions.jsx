@@ -1,21 +1,19 @@
-import React from 'react';
-import { Box, Button, Typography, Divider } from '@mui/material';
-import { Delete, ToggleOn, ToggleOff } from '@mui/icons-material';
+import React from "react";
+import { Box, Button, Typography, Divider } from "@mui/material";
+import { Delete, ToggleOn, ToggleOff } from "@mui/icons-material";
 
-interface ProductActionsProps {
-  selectedCount: number;
-  onBulkAction: (action: 'activate' | 'deactivate' | 'delete') => void;
-}
-
-export const ProductActions: React.FC<ProductActionsProps> = ({
-  selectedCount,
-  onBulkAction
-}) => {
+export const ProductActions = ({ selectedCount, onBulkAction }) => {
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <Typography variant="subtitle1">
-          {selectedCount} product{selectedCount !== 1 ? 's' : ''} selected
+          {selectedCount} product{selectedCount !== 1 ? "s" : ""} selected
         </Typography>
         <Box>
           <Button
@@ -23,7 +21,7 @@ export const ProductActions: React.FC<ProductActionsProps> = ({
             color="success"
             startIcon={<ToggleOn />}
             disabled={selectedCount === 0}
-            onClick={() => onBulkAction('activate')}
+            onClick={() => onBulkAction("activate")}
             sx={{ mr: 1 }}
           >
             Activate
@@ -33,7 +31,7 @@ export const ProductActions: React.FC<ProductActionsProps> = ({
             color="warning"
             startIcon={<ToggleOff />}
             disabled={selectedCount === 0}
-            onClick={() => onBulkAction('deactivate')}
+            onClick={() => onBulkAction("deactivate")}
             sx={{ mr: 1 }}
           >
             Deactivate
@@ -43,7 +41,7 @@ export const ProductActions: React.FC<ProductActionsProps> = ({
             color="error"
             startIcon={<Delete />}
             disabled={selectedCount === 0}
-            onClick={() => onBulkAction('delete')}
+            onClick={() => onBulkAction("delete")}
           >
             Delete
           </Button>
