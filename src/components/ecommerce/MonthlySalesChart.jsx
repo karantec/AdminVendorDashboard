@@ -1,7 +1,7 @@
 import Chart from "react-apexcharts";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
-import { MoreDotIcon } from "../../icons";
+
 import { useState } from "react";
 
 export default function MonthlySalesChart() {
@@ -108,9 +108,7 @@ export default function MonthlySalesChart() {
           Monthly Sales
         </h3>
         <div className="relative inline-block">
-          <button className="dropdown-toggle" onClick={toggleDropdown}>
-            <MoreDotIcon className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 size-6" />
-          </button>
+          <button className="dropdown-toggle" onClick={toggleDropdown}></button>
           <Dropdown
             isOpen={isOpen}
             onClose={closeDropdown}
