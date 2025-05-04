@@ -36,7 +36,6 @@ import { ReactComponent as EyeIcon } from "./eye.svg?react";
 import { ReactComponent as EyeCloseIcon } from "./eye-close.svg?react";
 import { ReactComponent as TimeIcon } from "./time.svg?react";
 import { ReactComponent as CopyIcon } from "./copy.svg?react";
-import { ReactComponent as ChevronLeftIcon } from "./chevron-left.svg?react";
 import { ReactComponent as UserCircleIcon } from "./user-circle.svg?react";
 import { ReactComponent as TaskIcon } from "./task-icon.svg?react";
 import { ReactComponent as ListIcon } from "./list.svg?react";
@@ -94,7 +93,6 @@ export {
   EyeCloseIcon,
   TimeIcon,
   CopyIcon,
-  ChevronLeftIcon,
   UserCircleIcon,
   TaskIcon,
   ListIcon,
