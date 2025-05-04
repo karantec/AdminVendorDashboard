@@ -32,8 +32,7 @@ import { ReactComponent as LockIcon } from "./lock.svg?react";
 import { ReactComponent as EnvelopeIcon } from "./envelope.svg?react";
 import { ReactComponent as UserIcon } from "./user-line.svg?react";
 import { ReactComponent as CalenderIcon } from "./calender-line.svg?react";
-import { ReactComponent as EyeIcon } from "./eye.svg?react";
-import { ReactComponent as EyeCloseIcon } from "./eye-close.svg?react";
+
 import { ReactComponent as TimeIcon } from "./time.svg?react";
 import { ReactComponent as CopyIcon } from "./copy.svg?react";
 import { ReactComponent as UserCircleIcon } from "./user-circle.svg?react";
@@ -89,8 +88,6 @@ export {
   LockIcon,
   UserIcon,
   CalenderIcon,
-  EyeIcon,
-  EyeCloseIcon,
   TimeIcon,
   CopyIcon,
   UserCircleIcon,
