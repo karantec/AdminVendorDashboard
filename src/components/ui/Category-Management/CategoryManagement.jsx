@@ -19,11 +19,25 @@ import {
   AppBar,
   Toolbar,
   CssBaseline,
+  useMediaQuery,
+  useTheme,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Chip,
+  Divider,
+  Container
 } from "@mui/material";
 import {
   Add as AddIcon,
   Delete as DeleteIcon,
   Edit as EditIcon,
+  Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon,
+  ArrowUpward as ArrowUpwardIcon
 } from "@mui/icons-material";
 
 // Dummy data for categories
@@ -63,6 +77,10 @@ const dummyCategories = [
 ];
 
 const CategoryManagement = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  
   const [categories, setCategories] = useState(dummyCategories);
   const [formData, setFormData] = useState({
     name: "",
@@ -80,11 +98,28 @@ const CategoryManagement = () => {
     name: "",
     description: "",
   });
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  // Monitor scroll position for scroll-to-top button
+  React.useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.pageYOffset > 300);
+    };
+    
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Get top-level categories for parent category dropdown
   const topLevelCategories = categories.filter(
     (cat) => cat.parentCategory === null
   );
+
+  // Get parent category name by ID
+  const getParentCategoryName = (parentId) => {
+    const parent = categories.find(cat => cat._id === parentId);
+    return parent ? parent.name : "None";
+  };
 
   // Form validation
   const validateForm = () => {
@@ -280,8 +315,72 @@ const CategoryManagement = () => {
     setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
+  // Scroll to top
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Responsive card layout for mobile view of categories
+  const CategoryCard = ({ category }) => (
+    <Card sx={{ mb: 2 }}>
+      <CardContent>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+          <Typography variant="h6" component="div">
+            {category.name}
+          </Typography>
+          <Chip 
+            label={category.isActive ? "Active" : "Inactive"} 
+            color={category.isActive ? "success" : "default"}
+            size="small"
+          />
+        </Box>
+        
+        {category.description && (
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+            {category.description}
+          </Typography>
+        )}
+        
+        <Typography variant="body2" color="text.secondary">
+          Parent: {category.parentCategory ? getParentCategoryName(category.parentCategory) : "None"}
+        </Typography>
+        
+        <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+          <IconButton
+            size="small"
+            onClick={() => handleEdit(category)}
+            disabled={isLoading}
+            color="primary"
+          >
+            <EditIcon fontSize="small" />
+          </IconButton>
+          <IconButton
+            size="small"
+            onClick={() => handleDelete(category._id)}
+            disabled={isLoading}
+            color="error"
+          >
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+          <IconButton
+            size="small"
+            onClick={() => handleToggleActive(category._id)}
+            disabled={isLoading}
+            color={category.isActive ? "success" : "default"}
+          >
+            {category.isActive ? (
+              <VisibilityIcon fontSize="small" />
+            ) : (
+              <VisibilityOffIcon fontSize="small" />
+            )}
+          </IconButton>
+        </Box>
+      </CardContent>
+    </Card>
+  );
+
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       <CssBaseline />
       <AppBar position="fixed">
         <Toolbar>
@@ -294,174 +393,256 @@ const CategoryManagement = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
+          pt: { xs: 3, sm: 4 },
+          pb: 3,
+          px: { xs: 2, sm: 3 },
           marginTop: "64px", // To account for the AppBar
         }}
       >
-        <Typography variant="h4" gutterBottom>
-          {editingId ? "Edit Category" : "Add New Category"}
-        </Typography>
+        <Container maxWidth="lg">
+          <Typography variant="h4" gutterBottom sx={{ fontSize: { xs: '1.75rem', sm: '2rem', md: '2.25rem' } }}>
+            {editingId ? "Edit Category" : "Add New Category"}
+          </Typography>
 
-        {/* Add/Edit Category Form */}
-        <Card sx={{ mb: 4 }}>
-          <CardContent>
-            <form onSubmit={handleSubmit}>
-              <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Category Name *"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    error={!!errors.name}
-                    helperText={errors.name}
-                    disabled={isLoading}
-                  />
-                </Grid>
-
-                <Grid item xs={12} md={6}>
-                  <FormControl fullWidth>
-                    <InputLabel>Parent Category</InputLabel>
-                    <Select
-                      name="parentCategory"
-                      value={formData.parentCategory}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          parentCategory: e.target.value,
-                        }))
-                      }
-                      label="Parent Category"
-                      disabled={isLoading || !!editingId}
-                    >
-                      <MenuItem value="">
-                        <em>None (Top-level category)</em>
-                      </MenuItem>
-                      {topLevelCategories.map((category) => (
-                        <MenuItem key={category._id} value={category._id}>
-                          {category.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Description"
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    multiline
-                    rows={3}
-                    error={!!errors.description}
-                    helperText={errors.description}
-                    disabled={isLoading}
-                  />
-                </Grid>
-
-                <Grid item xs={12}>
-                  <Box
-                    sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}
-                  >
-                    {editingId && (
-                      <Button
-                        variant="outlined"
-                        color="secondary"
-                        onClick={() => {
-                          setFormData({
-                            name: "",
-                            description: "",
-                            parentCategory: "",
-                          });
-                          setEditingId(null);
-                        }}
-                        disabled={isLoading}
-                      >
-                        Cancel
-                      </Button>
-                    )}
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      type="submit"
+          {/* Add/Edit Category Form */}
+          <Card sx={{ mb: 4 }}>
+            <CardContent>
+              <form onSubmit={handleSubmit}>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Category Name *"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      error={!!errors.name}
+                      helperText={errors.name}
                       disabled={isLoading}
-                      startIcon={isLoading && <CircularProgress size={20} />}
-                    >
-                      {editingId ? "Update Category" : "Add Category"}
-                    </Button>
-                  </Box>
-                </Grid>
-              </Grid>
-            </form>
-          </CardContent>
-        </Card>
+                      margin="normal"
+                      size={isMobile ? "small" : "medium"}
+                    />
+                  </Grid>
 
-        {/* Categories Table */}
-        <Paper sx={{ overflow: "hidden" }}>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Description</TableCell>
-                  <TableCell>Parent Category</TableCell>
-                  <TableCell>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {categories.map((category) => (
-                  <TableRow key={category._id}>
-                    <TableCell>{category.name}</TableCell>
-                    <TableCell>{category.description}</TableCell>
-                    <TableCell>
-                      {category.parentCategory
-                        ? category.parentCategory
-                        : "None"}
-                    </TableCell>
-                    <TableCell>
-                      <IconButton
-                        onClick={() => handleEdit(category)}
+                  <Grid item xs={12} md={6}>
+                    <FormControl fullWidth margin="normal" size={isMobile ? "small" : "medium"}>
+                      <InputLabel>Parent Category</InputLabel>
+                      <Select
+                        name="parentCategory"
+                        value={formData.parentCategory}
+                        onChange={handleInputChange}
+                        label="Parent Category"
                         disabled={isLoading}
                       >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        onClick={() => handleDelete(category._id)}
+                        <MenuItem value="">
+                          <em>None (Top-level category)</em>
+                        </MenuItem>
+                        {topLevelCategories.map((category) => (
+                          <MenuItem key={category._id} value={category._id}>
+                            {category.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Description"
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      multiline
+                      rows={isMobile ? 2 : 3}
+                      error={!!errors.description}
+                      helperText={errors.description}
+                      disabled={isLoading}
+                      margin="normal"
+                      size={isMobile ? "small" : "medium"}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Box
+                      sx={{ 
+                        display: "flex", 
+                        justifyContent: "flex-end", 
+                        gap: 2,
+                        flexDirection: isMobile ? "column" : "row",
+                        '& > button': {
+                          width: isMobile ? '100%' : 'auto'
+                        }
+                      }}
+                    >
+                      {editingId && (
+                        <Button
+                          variant="outlined"
+                          color="secondary"
+                          onClick={() => {
+                            setFormData({
+                              name: "",
+                              description: "",
+                              parentCategory: "",
+                            });
+                            setEditingId(null);
+                          }}
+                          disabled={isLoading}
+                          fullWidth={isMobile}
+                        >
+                          Cancel
+                        </Button>
+                      )}
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        type="submit"
                         disabled={isLoading}
+                        startIcon={isLoading ? <CircularProgress size={20} /> : (editingId ? <EditIcon /> : <AddIcon />)}
+                        fullWidth={isMobile}
                       >
-                        <DeleteIcon />
-                      </IconButton>
-                      <IconButton
-                        onClick={() => handleToggleActive(category._id)}
-                        disabled={isLoading}
-                      >
-                        {category.isActive ? (
-                          <VisibilityIcon />
-                        ) : (
-                          <VisibilityOffIcon />
-                        )}
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Paper>
+                        {editingId ? "Update Category" : "Add Category"}
+                      </Button>
+                    </Box>
+                  </Grid>
+                </Grid>
+              </form>
+            </CardContent>
+          </Card>
+
+          <Typography variant="h5" gutterBottom sx={{ mt: 4, mb: 2 }}>
+            All Categories
+          </Typography>
+
+          {/* Categories Table for larger screens */}
+          {!isMobile && (
+            <Paper sx={{ overflow: "hidden", mb: 4 }}>
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Name</TableCell>
+                      <TableCell>Description</TableCell>
+                      <TableCell>Parent Category</TableCell>
+                      <TableCell align="center">Status</TableCell>
+                      <TableCell align="center">Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {categories.map((category) => (
+                      <TableRow key={category._id}>
+                        <TableCell>{category.name}</TableCell>
+                        <TableCell>
+                          {category.description.length > 50 && !isTablet
+                            ? `${category.description.substring(0, 50)}...`
+                            : category.description}
+                        </TableCell>
+                        <TableCell>
+                          {category.parentCategory
+                            ? getParentCategoryName(category.parentCategory)
+                            : "None"}
+                        </TableCell>
+                        <TableCell align="center">
+                          <Chip 
+                            label={category.isActive ? "Active" : "Inactive"} 
+                            color={category.isActive ? "success" : "default"}
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell align="center">
+                          <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleEdit(category)}
+                              disabled={isLoading}
+                              color="primary"
+                            >
+                              <EditIcon />
+                            </IconButton>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleDelete(category._id)}
+                              disabled={isLoading}
+                              color="error"
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleToggleActive(category._id)}
+                              disabled={isLoading}
+                              color={category.isActive ? "success" : "default"}
+                            >
+                              {category.isActive ? (
+                                <VisibilityIcon />
+                              ) : (
+                                <VisibilityOffIcon />
+                              )}
+                            </IconButton>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Paper>
+          )}
+
+          {/* Card view for mobile */}
+          {isMobile && (
+            <Box sx={{ mb: 4 }}>
+              {categories.map((category) => (
+                <CategoryCard key={category._id} category={category} />
+              ))}
+              {categories.length === 0 && (
+                <Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
+                  No categories found. Add one to get started.
+                </Typography>
+              )}
+            </Box>
+          )}
+        </Container>
+
+        {/* Scroll to top button */}
+        {showScrollTop && (
+          <Box
+            sx={{
+              position: 'fixed',
+              bottom: 20,
+              right: 20,
+              zIndex: 1000,
+            }}
+          >
+            <IconButton
+              color="primary"
+              aria-label="scroll to top"
+              onClick={scrollToTop}
+              sx={{
+                backgroundColor: theme.palette.background.paper,
+                boxShadow: theme.shadows[3],
+                '&:hover': {
+                  backgroundColor: theme.palette.background.default,
+                }
+              }}
+            >
+              <ArrowUpwardIcon />
+            </IconButton>
+          </Box>
+        )}
 
         {/* Snackbar */}
         <Snackbar
           open={snackbar.open}
           autoHideDuration={6000}
           onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         >
           <Alert
             onClose={handleCloseSnackbar}
             severity={snackbar.severity}
             sx={{ width: "100%" }}
+            variant="filled"
           >
             {snackbar.message}
           </Alert>

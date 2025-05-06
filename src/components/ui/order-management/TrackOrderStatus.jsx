@@ -15,13 +15,26 @@ import {
   ListItemAvatar,
   ListItemText,
   Grid,
+  Container,
+  useMediaQuery,
+  IconButton,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Card,
+  CardContent,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import {
   LocalShipping,
   ShoppingBasket,
   CheckCircle,
   Home,
   Cancel,
+  ExpandMore,
+  ArrowBack,
+  Phone,
+  LocationOn,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
@@ -126,6 +139,9 @@ const OrderStatusPage = () => {
   const [activeOrder, setActiveOrder] = useState(null);
   const [pastOrders, setPastOrders] = useState([]);
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
 
   useEffect(() => {
     // Simulate API fetch
@@ -188,7 +204,15 @@ const OrderStatusPage = () => {
   const renderOrderStatusStepper = (order) => {
     if (order.status === "cancelled") {
       return (
-        <Box sx={{ display: "flex", alignItems: "center", mt: 2, mb: 3 }}>
+        <Box 
+          sx={{ 
+            display: "flex", 
+            alignItems: "center", 
+            mt: 2, 
+            mb: 3,
+            justifyContent: isMobile ? "center" : "flex-start" 
+          }}
+        >
           <Cancel color="error" sx={{ mr: 1 }} />
           <Typography variant="h6" color="error">
             Order Cancelled
@@ -200,8 +224,57 @@ const OrderStatusPage = () => {
     const steps = getStatusSteps();
     const activeStep = getActiveStep(order.status);
 
+    if (isMobile) {
+      // Mobile view - vertical timeline-like display
+      return (
+        <Box sx={{ mt: 3, mb: 3 }}>
+          {steps.map((step, index) => {
+            const isCompleted = index <= activeStep;
+            return (
+              <Box 
+                key={step.label} 
+                sx={{ 
+                  display: "flex", 
+                  alignItems: "center", 
+                  mb: 2,
+                  opacity: isCompleted ? 1 : 0.5
+                }}
+              >
+                <Box 
+                  sx={{ 
+                    mr: 2, 
+                    bgcolor: isCompleted ? theme.palette.primary.main : 'grey.400',
+                    color: "#fff",
+                    p: 1,
+                    borderRadius: '50%',
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                  }}
+                >
+                  {step.icon}
+                </Box>
+                <Typography variant="body1">{step.label}</Typography>
+              </Box>
+            );
+          })}
+        </Box>
+      );
+    }
+
+    // Desktop view - horizontal stepper
     return (
-      <Stepper activeStep={activeStep} alternativeLabel sx={{ mt: 3, mb: 3 }}>
+      <Stepper 
+        activeStep={activeStep} 
+        alternativeLabel 
+        sx={{ 
+          mt: 3, 
+          mb: 3,
+          "& .MuiStepConnector-line": {
+            minHeight: "1px"
+          }
+        }}
+      >
         {steps.map((step) => (
           <Step key={step.label}>
             <StepLabel icon={step.icon}>{step.label}</StepLabel>
@@ -215,142 +288,343 @@ const OrderStatusPage = () => {
     if (!deliveryPerson) return null;
 
     return (
-      <Box sx={{ mt: 3 }}>
-        <Typography variant="subtitle1" gutterBottom>
-          Your Delivery Person
-        </Typography>
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Avatar sx={{ mr: 2 }}>{deliveryPerson.name.charAt(0)}</Avatar>
-          <Box>
-            <Typography>{deliveryPerson.name}</Typography>
-            <Typography variant="body2" color="text.secondary">
-              {deliveryPerson.phone}
-            </Typography>
-            <Chip
-              label={`★ ${deliveryPerson.rating}`}
-              size="small"
-              sx={{ mt: 0.5 }}
-            />
+      <Card sx={{ mt: 3, p: 1 }}>
+        <CardContent>
+          <Typography variant="subtitle1" gutterBottom fontWeight="medium">
+            Your Delivery Person
+          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Avatar sx={{ mr: 2, width: 50, height: 50 }}>
+              {deliveryPerson.name.charAt(0)}
+            </Avatar>
+            <Box sx={{ flexGrow: 1 }}>
+              <Typography fontWeight="bold">{deliveryPerson.name}</Typography>
+              <Box sx={{ display: "flex", alignItems: "center", mt: 0.5 }}>
+                <Phone sx={{ fontSize: 16, mr: 0.5, color: "text.secondary" }} />
+                <Typography variant="body2" color="text.secondary">
+                  {deliveryPerson.phone}
+                </Typography>
+              </Box>
+              <Chip
+                label={`★ ${deliveryPerson.rating}`}
+                size="small"
+                color="primary"
+                sx={{ mt: 0.5 }}
+              />
+            </Box>
+            <IconButton color="primary" size="large">
+              <Phone />
+            </IconButton>
           </Box>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  const renderOrderSummary = (order) => {
+    return (
+      <>
+        <Typography variant="subtitle1" gutterBottom fontWeight="medium">
+          Order Summary
+        </Typography>
+        {isMobile ? (
+          <List disablePadding>
+            {order.items.map((item) => (
+              <ListItem key={item.id} sx={{ py: 1, px: 0 }}>
+                <ListItemAvatar>
+                  <Avatar
+                    src={item.image}
+                    alt={item.name}
+                    variant="rounded"
+                    sx={{ width: 48, height: 48 }}
+                  />
+                </ListItemAvatar>
+                <ListItemText
+                  primary={item.name}
+                  secondary={`Qty: ${item.quantity} x $${item.price.toFixed(2)}`}
+                  primaryTypographyProps={{ fontWeight: "medium" }}
+                />
+                <Typography variant="body2" fontWeight="bold">
+                  ${(item.price * item.quantity).toFixed(2)}
+                </Typography>
+              </ListItem>
+            ))}
+          </List>
+        ) : (
+          <List disablePadding>
+            {order.items.map((item) => (
+              <ListItem key={item.id} sx={{ py: 1.5, px: 0 }}>
+                <ListItemAvatar>
+                  <Avatar
+                    src={item.image}
+                    alt={item.name}
+                    variant="rounded"
+                    sx={{ width: 56, height: 56, mr: 2 }}
+                  />
+                </ListItemAvatar>
+                <ListItemText
+                  primary={item.name}
+                  secondary={`Quantity: ${item.quantity}`}
+                  primaryTypographyProps={{ fontWeight: "medium" }}
+                />
+                <Typography variant="body2" fontWeight="bold">
+                  ${(item.price * item.quantity).toFixed(2)}
+                </Typography>
+              </ListItem>
+            ))}
+          </List>
+        )}
+        <Divider sx={{ my: 2 }} />
+        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Typography variant="subtitle1" fontWeight="bold">Total</Typography>
+          <Typography variant="subtitle1" fontWeight="bold">
+            ${order.totalAmount.toFixed(2)}
+          </Typography>
         </Box>
-      </Box>
+      </>
+    );
+  };
+
+  const renderDeliveryInfo = (order) => {
+    return (
+      <>
+        <Typography variant="subtitle1" gutterBottom fontWeight="medium">
+          Delivery Information
+        </Typography>
+
+        <Card sx={{ mb: 2, p: 1 }}>
+          <CardContent>
+            <Box sx={{ display: "flex", alignItems: "flex-start" }}>
+              <Home sx={{ mr: 1.5, color: theme.palette.primary.main }} />
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  Store
+                </Typography>
+                <Typography variant="body1" fontWeight="medium">
+                  {order.storeName}
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center", mt: 0.5 }}>
+                  <LocationOn sx={{ fontSize: 16, mr: 0.5, color: "text.secondary" }} />
+                  <Typography variant="body2" color="text.secondary">
+                    {order.storeLocation}
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+
+        <Card sx={{ mb: 2, p: 1 }}>
+          <CardContent>
+            <Box sx={{ display: "flex", alignItems: "flex-start" }}>
+              <LocalShipping sx={{ mr: 1.5, color: theme.palette.primary.main }} />
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  Delivery Address
+                </Typography>
+                <Typography variant="body1" fontWeight="medium">
+                  {order.deliveryAddress}
+                </Typography>
+                
+                {order.status !== "cancelled" && (
+                  <Box sx={{ mt: 1 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Estimated Delivery
+                    </Typography>
+                    <Typography variant="body1" fontWeight="medium">
+                      {formatDate(order.estimatedDelivery)}
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+      </>
+    );
+  };
+
+  const renderPastOrdersList = () => {
+    if (isMobile) {
+      return pastOrders.map((order) => (
+        <Accordion key={order.id} sx={{ mb: 2 }} elevation={2}>
+          <AccordionSummary expandIcon={<ExpandMore />}>
+            <Box>
+              <Typography variant="subtitle2">{`Order #${order.orderNumber}`}</Typography>
+              <Typography variant="caption" color="text.secondary" component="div">
+                {formatDate(order.date)}
+                <Chip 
+                  size="small" 
+                  label={order.status === "delivered" ? "Delivered" : "Cancelled"}
+                  color={order.status === "delivered" ? "success" : "error"}
+                  sx={{ ml: 1, height: 20, fontSize: '0.7rem' }}
+                />
+              </Typography>
+            </Box>
+            <Typography variant="body2" sx={{ ml: 'auto', fontWeight: 'bold' }}>
+              ${order.totalAmount.toFixed(2)}
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <List dense disablePadding>
+              {order.items.map((item) => (
+                <ListItem key={item.id} sx={{ px: 0, py: 0.5 }}>
+                  <ListItemText
+                    primary={`${item.quantity}x ${item.name}`}
+                    secondary={`$${item.price.toFixed(2)} each`}
+                  />
+                </ListItem>
+              ))}
+            </List>
+            <Button
+              size="small"
+              variant="contained"
+              sx={{ mt: 2 }}
+              fullWidth
+              onClick={() => handleReorder(order.id)}
+            >
+              Reorder
+            </Button>
+          </AccordionDetails>
+        </Accordion>
+      ));
+    }
+
+    return (
+      <List>
+        {pastOrders.map((order) => (
+          <React.Fragment key={order.id}>
+            <ListItem sx={{ py: 2 }}>
+              <ListItemText
+                primary={`Order #${order.orderNumber}`}
+                secondary={
+                  <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
+                    <Typography variant="body2" component="span">
+                      {formatDate(order.date)}
+                    </Typography>
+                    <Typography variant="body2" component="span" sx={{ mx: 0.5 }}>•</Typography>
+                    <Chip 
+                      size="small" 
+                      label={order.status === "delivered" ? "Delivered" : "Cancelled"}
+                      color={order.status === "delivered" ? "success" : "error"}
+                      sx={{ height: 24 }}
+                    />
+                  </Box>
+                }
+              />
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-end",
+                }}
+              >
+                <Typography variant="body1" fontWeight="bold">
+                  ${order.totalAmount.toFixed(2)}
+                </Typography>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  sx={{ mt: 1 }}
+                  onClick={() => handleReorder(order.id)}
+                >
+                  Reorder
+                </Button>
+              </Box>
+            </ListItem>
+            <Divider component="li" />
+          </React.Fragment>
+        ))}
+      </List>
     );
   };
 
   return (
-    <Box sx={{ p: 3, maxWidth: 1200, margin: "0 auto" }}>
-      <Typography variant="h4" gutterBottom>
-        Order Status
-      </Typography>
+    <Container maxWidth="lg" sx={{ py: { xs: 2, sm: 3 } }}>
+      <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+        {isMobile && (
+          <IconButton edge="start" sx={{ mr: 1 }} onClick={() => navigate(-1)}>
+            <ArrowBack />
+          </IconButton>
+        )}
+        <Typography variant={isMobile ? "h5" : "h4"} component="h1">
+          Order Status
+        </Typography>
+      </Box>
 
       {activeOrder ? (
-        <Paper sx={{ p: 3, mb: 4 }} elevation={3}>
-          <Typography variant="h6" gutterBottom>
-            Current Order: #{activeOrder.orderNumber}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" gutterBottom>
-            Placed on {formatDate(activeOrder.date)}
-          </Typography>
-
-          {renderOrderStatusStepper(activeOrder)}
-
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
-              <Typography variant="subtitle1" gutterBottom>
-                Order Summary
+        <Paper sx={{ p: { xs: 2, sm: 3 }, mb: 4 }} elevation={3}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+            <Box>
+              <Typography variant="h6" gutterBottom>
+                Current Order: #{activeOrder.orderNumber}
               </Typography>
-              <List>
-                {activeOrder.items.map((item) => (
-                  <ListItem key={item.id} sx={{ py: 1 }}>
-                    <ListItemAvatar>
-                      <Avatar
-                        src={item.image}
-                        alt={item.name}
-                        variant="rounded"
-                        sx={{ width: 56, height: 56, mr: 2 }}
-                      />
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={item.name}
-                      secondary={`Quantity: ${item.quantity}`}
-                    />
-                    <Typography variant="body2">
-                      ${(item.price * item.quantity).toFixed(2)}
-                    </Typography>
-                  </ListItem>
-                ))}
-              </List>
-              <Divider sx={{ my: 2 }} />
-              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Typography variant="subtitle1">Total</Typography>
-                <Typography variant="subtitle1">
-                  ${activeOrder.totalAmount.toFixed(2)}
-                </Typography>
-              </Box>
-            </Grid>
-
-            <Grid item xs={12} md={6}>
-              <Typography variant="subtitle1" gutterBottom>
-                Delivery Information
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                Placed on {formatDate(activeOrder.date)}
               </Typography>
-
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="body2" color="text.secondary">
-                  Store
-                </Typography>
-                <Typography variant="body1">{activeOrder.storeName}</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {activeOrder.storeLocation}
-                </Typography>
-              </Box>
-
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="body2" color="text.secondary">
-                  Delivery Address
-                </Typography>
-                <Typography variant="body1">
-                  {activeOrder.deliveryAddress}
-                </Typography>
-              </Box>
-
-              {activeOrder.status !== "cancelled" && (
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    Estimated Delivery
-                  </Typography>
-                  <Typography variant="body1">
-                    {formatDate(activeOrder.estimatedDelivery)}
-                  </Typography>
-                </Box>
-              )}
-
-              {renderDeliveryPersonInfo(activeOrder.deliveryPerson)}
-            </Grid>
-          </Grid>
-
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
-            {activeOrder.status === "cancelled" ? (
-              <Button
-                variant="contained"
-                onClick={() => handleReorder(activeOrder.id)}
-                sx={{ minWidth: 120 }}
-              >
-                Reorder
-              </Button>
-            ) : (
+            </Box>
+            {!isMobile && activeOrder.status !== "cancelled" && (
               <Button
                 variant="outlined"
                 color="error"
                 onClick={handleContactSupport}
-                sx={{ minWidth: 120 }}
+                startIcon={<Phone />}
               >
                 Need Help?
               </Button>
             )}
           </Box>
+
+          {renderOrderStatusStepper(activeOrder)}
+
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              {renderOrderSummary(activeOrder)}
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              {renderDeliveryInfo(activeOrder)}
+              {renderDeliveryPersonInfo(activeOrder.deliveryPerson)}
+            </Grid>
+          </Grid>
+
+          {isMobile && (
+            <Box sx={{ mt: 3 }}>
+              {activeOrder.status === "cancelled" ? (
+                <Button
+                  variant="contained"
+                  onClick={() => handleReorder(activeOrder.id)}
+                  fullWidth
+                >
+                  Reorder
+                </Button>
+              ) : (
+                <Button
+                  variant="outlined"
+                  color="error"
+                  onClick={handleContactSupport}
+                  fullWidth
+                  startIcon={<Phone />}
+                >
+                  Need Help?
+                </Button>
+              )}
+            </Box>
+          )}
+          
+          {!isMobile && activeOrder.status === "cancelled" && (
+            <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
+              <Button
+                variant="contained"
+                onClick={() => handleReorder(activeOrder.id)}
+              >
+                Reorder
+              </Button>
+            </Box>
+          )}
         </Paper>
       ) : (
-        <Paper sx={{ p: 3, mb: 4, textAlign: "center" }} elevation={3}>
+        <Paper sx={{ p: { xs: 3, sm: 4 }, mb: 4, textAlign: "center" }} elevation={3}>
           <Typography variant="h6" gutterBottom>
             No Active Orders
           </Typography>
@@ -361,6 +635,7 @@ const OrderStatusPage = () => {
             variant="contained"
             onClick={() => navigate("/")}
             sx={{ mt: 2 }}
+            size={isMobile ? "large" : "medium"}
           >
             Start Shopping
           </Button>
@@ -368,56 +643,14 @@ const OrderStatusPage = () => {
       )}
 
       {pastOrders.length > 0 && (
-        <Paper sx={{ p: 3 }} elevation={3}>
+        <Paper sx={{ p: { xs: 2, sm: 3 } }} elevation={3}>
           <Typography variant="h6" gutterBottom>
             Order History
           </Typography>
-
-          <List>
-            {pastOrders.map((order) => (
-              <React.Fragment key={order.id}>
-                <ListItem sx={{ py: 2 }}>
-                  <ListItemText
-                    primary={`Order #${order.orderNumber}`}
-                    secondary={
-                      <>
-                        <span>Placed on {formatDate(order.date)}</span>
-                        <span> • </span>
-                        <span>
-                          {order.status === "delivered"
-                            ? "Delivered"
-                            : "Cancelled"}
-                        </span>
-                      </>
-                    }
-                  />
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "flex-end",
-                    }}
-                  >
-                    <Typography variant="body1">
-                      ${order.totalAmount.toFixed(2)}
-                    </Typography>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      sx={{ mt: 1 }}
-                      onClick={() => handleReorder(order.id)}
-                    >
-                      Reorder
-                    </Button>
-                  </Box>
-                </ListItem>
-                <Divider component="li" />
-              </React.Fragment>
-            ))}
-          </List>
+          {renderPastOrdersList()}
         </Paper>
       )}
-    </Box>
+    </Container>
   );
 };
 

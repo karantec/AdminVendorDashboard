@@ -22,14 +22,22 @@ import {
   Snackbar,
   Alert,
   CircularProgress,
+  Grid,
+  Card,
+  CardContent,
+  CardActions,
+  useMediaQuery,
+  IconButton,
+  Divider,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { styled, useTheme } from "@mui/material/styles";
 import {
   LocalShipping,
   AssignmentInd,
   Info,
   CheckCircle,
   Cancel,
+  MoreVert,
 } from "@mui/icons-material";
 
 // Dummy data
@@ -85,7 +93,11 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-const OrderReassigned = () => {
+const OrderReassignment = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
+  
   const [orders, setOrders] = useState([]);
   const [drivers, setDrivers] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -171,24 +183,42 @@ const OrderReassigned = () => {
       case "pending":
         return (
           <Chip
-            icon={<Info />}
+            icon={!isMobile ? <Info /> : null}
             label="Pending"
             color="warning"
             variant="outlined"
+            size={isMobile ? "small" : "medium"}
           />
         );
       case "in-progress":
         return (
-          <Chip icon={<LocalShipping />} label="In Progress" color="primary" />
+          <Chip 
+            icon={!isMobile ? <LocalShipping /> : null} 
+            label="In Progress" 
+            color="primary"
+            size={isMobile ? "small" : "medium"}
+          />
         );
       case "completed":
         return (
-          <Chip icon={<CheckCircle />} label="Completed" color="success" />
+          <Chip 
+            icon={!isMobile ? <CheckCircle /> : null} 
+            label="Completed" 
+            color="success"
+            size={isMobile ? "small" : "medium"}
+          />
         );
       case "cancelled":
-        return <Chip icon={<Cancel />} label="Cancelled" color="error" />;
+        return (
+          <Chip 
+            icon={!isMobile ? <Cancel /> : null} 
+            label="Cancelled" 
+            color="error"
+            size={isMobile ? "small" : "medium"}
+          />
+        );
       default:
-        return <Chip label={status} />;
+        return <Chip label={status} size={isMobile ? "small" : "medium"} />;
     }
   };
 
@@ -205,17 +235,169 @@ const OrderReassigned = () => {
     }
   };
 
+  // Card view for mobile
+  const renderOrderCards = () => {
+    return (
+      <Grid container spacing={2}>
+        {orders.map((order) => (
+          <Grid item xs={12} key={order.id}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  {order.orderNumber}
+                </Typography>
+                <Grid container spacing={1}>
+                  <Grid item xs={6}>
+                    <Typography variant="body2" color="text.secondary">
+                      Customer
+                    </Typography>
+                    <Typography variant="body1">{order.customerName}</Typography>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography variant="body2" color="text.secondary">
+                      Store
+                    </Typography>
+                    <Typography variant="body1">{order.storeName}</Typography>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography variant="body2" color="text.secondary">
+                      Driver
+                    </Typography>
+                    <Typography variant="body1">
+                      {order.originalDriver}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography variant="body2" color="text.secondary">
+                      Status
+                    </Typography>
+                    {getStatusChip(order.status)}
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography variant="body2" color="text.secondary">
+                      Items
+                    </Typography>
+                    <Typography variant="body1">{order.itemsCount}</Typography>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography variant="body2" color="text.secondary">
+                      Total
+                    </Typography>
+                    <Typography variant="body1">
+                      ${order.totalAmount.toFixed(2)}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography variant="body2" color="text.secondary">
+                      Created At
+                    </Typography>
+                    <Typography variant="body1">
+                      {new Date(order.createdAt).toLocaleString()}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </CardContent>
+              <Divider />
+              <CardActions>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  size="small"
+                  fullWidth
+                  onClick={() => handleReassignClick(order)}
+                  disabled={
+                    order.status === "completed" || order.status === "cancelled"
+                  }
+                >
+                  Reassign
+                </Button>
+              </CardActions>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    );
+  };
+
+  // Table view for tablet and desktop
+  const renderOrderTable = () => {
+    return (
+      <TableContainer component={Paper}>
+        <Table size={isTablet ? "small" : "medium"}>
+          <TableHead>
+            <TableRow sx={{ backgroundColor: "primary.main" }}>
+              <TableCell sx={{ color: "common.white" }}>Order #</TableCell>
+              <TableCell sx={{ color: "common.white" }}>Customer</TableCell>
+              {!isTablet && (
+                <TableCell sx={{ color: "common.white" }}>Store</TableCell>
+              )}
+              <TableCell sx={{ color: "common.white" }}>
+                Original Driver
+              </TableCell>
+              <TableCell sx={{ color: "common.white" }}>Status</TableCell>
+              {!isTablet && (
+                <TableCell sx={{ color: "common.white" }}>Items</TableCell>
+              )}
+              <TableCell sx={{ color: "common.white" }}>Total</TableCell>
+              {!isTablet && (
+                <TableCell sx={{ color: "common.white" }}>Created At</TableCell>
+              )}
+              <TableCell sx={{ color: "common.white" }}>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {orders.map((order) => (
+              <StyledTableRow key={order.id}>
+                <TableCell>{order.orderNumber}</TableCell>
+                <TableCell>{order.customerName}</TableCell>
+                {!isTablet && <TableCell>{order.storeName}</TableCell>}
+                <TableCell>{order.originalDriver}</TableCell>
+                <TableCell>{getStatusChip(order.status)}</TableCell>
+                {!isTablet && <TableCell>{order.itemsCount}</TableCell>}
+                <TableCell>${order.totalAmount.toFixed(2)}</TableCell>
+                {!isTablet && (
+                  <TableCell>
+                    {new Date(order.createdAt).toLocaleString()}
+                  </TableCell>
+                )}
+                <TableCell>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    size="small"
+                    onClick={() => handleReassignClick(order)}
+                    disabled={
+                      order.status === "completed" ||
+                      order.status === "cancelled"
+                    }
+                  >
+                    Reassign
+                  </Button>
+                </TableCell>
+              </StyledTableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    );
+  };
+
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
       <Typography
-        variant="h4"
+        variant={isMobile ? "h5" : "h4"}
         gutterBottom
         sx={{ display: "flex", alignItems: "center" }}
       >
         <AssignmentInd sx={{ mr: 1 }} /> Order Reassignment
       </Typography>
 
-      <Typography variant="body1" color="text.secondary" gutterBottom>
+      <Typography 
+        variant="body1" 
+        color="text.secondary" 
+        gutterBottom
+        sx={{ mb: 3 }}
+      >
         Reassign pending or in-progress orders to different drivers when needed.
       </Typography>
 
@@ -224,55 +406,9 @@ const OrderReassigned = () => {
           <CircularProgress />
         </Box>
       ) : (
-        <TableContainer component={Paper} sx={{ mt: 3 }}>
-          <Table>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: "primary.main" }}>
-                <TableCell sx={{ color: "common.white" }}>Order #</TableCell>
-                <TableCell sx={{ color: "common.white" }}>Customer</TableCell>
-                <TableCell sx={{ color: "common.white" }}>Store</TableCell>
-                <TableCell sx={{ color: "common.white" }}>
-                  Original Driver
-                </TableCell>
-                <TableCell sx={{ color: "common.white" }}>Status</TableCell>
-                <TableCell sx={{ color: "common.white" }}>Items</TableCell>
-                <TableCell sx={{ color: "common.white" }}>Total</TableCell>
-                <TableCell sx={{ color: "common.white" }}>Created At</TableCell>
-                <TableCell sx={{ color: "common.white" }}>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {orders.map((order) => (
-                <StyledTableRow key={order.id}>
-                  <TableCell>{order.orderNumber}</TableCell>
-                  <TableCell>{order.customerName}</TableCell>
-                  <TableCell>{order.storeName}</TableCell>
-                  <TableCell>{order.originalDriver}</TableCell>
-                  <TableCell>{getStatusChip(order.status)}</TableCell>
-                  <TableCell>{order.itemsCount}</TableCell>
-                  <TableCell>${order.totalAmount.toFixed(2)}</TableCell>
-                  <TableCell>
-                    {new Date(order.createdAt).toLocaleString()}
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="outlined"
-                      color="primary"
-                      size="small"
-                      onClick={() => handleReassignClick(order)}
-                      disabled={
-                        order.status === "completed" ||
-                        order.status === "cancelled"
-                      }
-                    >
-                      Reassign
-                    </Button>
-                  </TableCell>
-                </StyledTableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <Box sx={{ mt: 3 }}>
+          {isMobile ? renderOrderCards() : renderOrderTable()}
+        </Box>
       )}
 
       {orders.length === 0 && !loading && (
@@ -342,7 +478,11 @@ const OrderReassigned = () => {
             variant="contained"
             disabled={!selectedDriver || loading}
           >
-            {loading ? <CircularProgress size={24} /> : "Confirm Reassignment"}
+            {loading ? (
+              <CircularProgress size={24} />
+            ) : (
+              "Confirm Reassignment"
+            )}
           </Button>
         </DialogActions>
       </Dialog>
@@ -352,7 +492,10 @@ const OrderReassigned = () => {
         open={snackbarOpen}
         autoHideDuration={6000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        anchorOrigin={{ 
+          vertical: "top", 
+          horizontal: isMobile ? "center" : "right" 
+        }}
       >
         <Alert
           onClose={handleSnackbarClose}
@@ -366,4 +509,4 @@ const OrderReassigned = () => {
   );
 };
 
-export default OrderReassigned;
+export default OrderReassignment;

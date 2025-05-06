@@ -14,7 +14,7 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { Calendar, Filter, Download } from "lucide-react";
+import { Calendar, Filter, Download, ChevronDown } from "lucide-react";
 
 // Dummy data for product popularity
 const dummyProducts = [
@@ -145,6 +145,7 @@ const ProductPopularity = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("products");
   const [categories, setCategories] = useState([]);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   // Simulate data loading
   useEffect(() => {
@@ -210,31 +211,59 @@ const ProductPopularity = () => {
     URL.revokeObjectURL(url);
   };
 
+  // Toggle filters visibility on mobile
+  const toggleFilters = () => {
+    setIsFilterOpen(!isFilterOpen);
+  };
+
   return (
-    <div className="p-6 max-w-full">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">
+    <div className="p-3 sm:p-6 max-w-full">
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
           Product Popularity Analytics
         </h1>
-        <p className="text-gray-600">
+        <p className="text-sm sm:text-base text-gray-600">
           Track your best-selling products and analyze trends
         </p>
       </div>
 
-      {/* Filters Section */}
-      <div className="bg-white p-4 rounded-lg shadow mb-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      {/* Filters Section - Mobile Toggle Button */}
+      <div className="md:hidden mb-4">
+        <button
+          onClick={toggleFilters}
+          className="w-full flex items-center justify-between bg-white p-3 rounded-lg shadow"
+        >
           <div className="flex items-center gap-2">
+            <Filter size={18} className="text-gray-500" />
+            <span className="font-medium">Filters</span>
+          </div>
+          <ChevronDown
+            size={18}
+            className={`text-gray-500 transition-transform ${
+              isFilterOpen ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+      </div>
+
+      {/* Filters Section */}
+      <div
+        className={`bg-white p-4 rounded-lg shadow mb-6 ${
+          isFilterOpen ? "block" : "hidden md:block"
+        }`}
+      >
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="flex items-center gap-2 hidden md:flex">
             <Filter size={20} className="text-gray-500" />
             <h2 className="font-semibold">Filters</h2>
           </div>
 
-          <div className="flex flex-wrap gap-4 items-center">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-4 w-full md:w-auto">
             {/* Time Range Filter */}
-            <div className="flex items-center gap-2">
-              <Calendar size={18} className="text-gray-500" />
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <Calendar size={18} className="text-gray-500 hidden sm:block" />
               <select
-                className="border rounded-md px-3 py-1 bg-gray-50"
+                className="border rounded-md px-3 py-1 bg-gray-50 w-full sm:w-auto"
                 value={filters.timeRange}
                 onChange={(e) => handleTimeRangeChange(e.target.value)}
               >
@@ -246,9 +275,9 @@ const ProductPopularity = () => {
             </div>
 
             {/* Category Filter */}
-            <div>
+            <div className="w-full sm:w-auto">
               <select
-                className="border rounded-md px-3 py-1 bg-gray-50"
+                className="border rounded-md px-3 py-1 bg-gray-50 w-full"
                 value={filters.category || "all"}
                 onChange={handleCategoryChange}
               >
@@ -262,20 +291,20 @@ const ProductPopularity = () => {
             </div>
 
             {/* Min Orders Filter */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
               <input
                 type="number"
                 placeholder="Min. Orders"
                 value={filters.minOrders || ""}
                 onChange={handleMinOrdersChange}
-                className="border rounded-md px-3 py-1 bg-gray-50 w-24"
+                className="border rounded-md px-3 py-1 bg-gray-50 w-full"
               />
             </div>
 
             {/* Export Button */}
             <button
               onClick={exportData}
-              className="ml-auto bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md flex items-center gap-1"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md flex items-center justify-center gap-1 w-full sm:w-auto sm:ml-auto"
             >
               <Download size={16} />
               Export
@@ -284,9 +313,9 @@ const ProductPopularity = () => {
         </div>
       </div>
 
-      {/* Tabs Navigation */}
-      <div className="mb-6 border-b">
-        <div className="flex gap-6">
+      {/* Tabs Navigation - Scrollable on mobile */}
+      <div className="mb-6 border-b overflow-x-auto">
+        <div className="flex gap-4 sm:gap-6 min-w-max">
           <button
             className={`py-2 px-1 font-medium ${
               activeTab === "products"
@@ -330,15 +359,20 @@ const ProductPopularity = () => {
           {/* Top Products View */}
           {activeTab === "products" && (
             <div className="space-y-6">
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h3 className="text-lg font-semibold mb-6">
+              <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
+                <h3 className="text-lg font-semibold mb-4 sm:mb-6">
                   Most Popular Products
                 </h3>
-                <div className="h-80">
+                <div className="h-64 sm:h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                       data={filteredProducts.slice(0, 10)}
-                      margin={{ top: 5, right: 30, left: 20, bottom: 60 }}
+                      margin={{ 
+                        top: 5, 
+                        right: 10, 
+                        left: 0, 
+                        bottom: 60 
+                      }}
                     >
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis
@@ -346,8 +380,10 @@ const ProductPopularity = () => {
                         angle={-45}
                         textAnchor="end"
                         height={80}
+                        tick={{ fontSize: 10 }}
+                        interval={0}
                       />
-                      <YAxis />
+                      <YAxis tick={{ fontSize: 10 }} />
                       <Tooltip
                         formatter={(value) => [
                           `${value} orders`,
@@ -365,44 +401,46 @@ const ProductPopularity = () => {
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-lg shadow overflow-x-auto">
+              <div className="bg-white p-4 sm:p-6 rounded-lg shadow overflow-x-auto">
                 <h3 className="text-lg font-semibold mb-4">Products Details</h3>
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Product Name
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Category
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Total Orders
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Revenue ($)
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredProducts.map((product) => (
-                      <tr key={product.id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {product.name}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {product.category}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {product.totalOrders.toLocaleString()}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          ${product.revenue.toLocaleString()}
-                        </td>
+                <div className="min-w-full overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Product Name
+                        </th>
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Category
+                        </th>
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Total Orders
+                        </th>
+                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Revenue ($)
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {filteredProducts.map((product) => (
+                        <tr key={product.id}>
+                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm font-medium text-gray-900">
+                            {product.name}
+                          </td>
+                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
+                            {product.category}
+                          </td>
+                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
+                            {product.totalOrders.toLocaleString()}
+                          </td>
+                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
+                            ${product.revenue.toLocaleString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
 
                 {filteredProducts.length === 0 && (
                   <div className="py-4 text-center text-gray-500">
@@ -416,22 +454,24 @@ const ProductPopularity = () => {
           {/* Category Distribution View */}
           {activeTab === "categories" && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h3 className="text-lg font-semibold mb-6">
+              <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
+                <h3 className="text-lg font-semibold mb-4 sm:mb-6">
                   Category Distribution
                 </h3>
-                <div className="h-80">
+                <div className="h-64 sm:h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
                         data={categoryData}
                         cx="50%"
                         cy="50%"
-                        labelLine={true}
-                        label={({ name, percent }) =>
-                          `${name}: ${(percent * 100).toFixed(0)}%`
-                        }
-                        outerRadius={100}
+                        labelLine={false}
+                        label={({ name, percent }) => {
+                          // Only show label on larger screens
+                          const isSmallScreen = window.innerWidth < 640;
+                          return isSmallScreen ? "" : `${name}: ${(percent * 100).toFixed(0)}%`;
+                        }}
+                        outerRadius={80}
                         fill="#8884d8"
                         dataKey="value"
                       >
@@ -454,20 +494,25 @@ const ProductPopularity = () => {
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h3 className="text-lg font-semibold mb-6">
+              <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
+                <h3 className="text-lg font-semibold mb-4 sm:mb-6">
                   Orders by Category
                 </h3>
-                <div className="h-80">
+                <div className="h-64 sm:h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                       data={categoryData}
-                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                      margin={{ top: 5, right: 20, left: 20, bottom: 5 }}
                       layout="vertical"
                     >
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis type="number" />
-                      <YAxis type="category" dataKey="name" width={100} />
+                      <XAxis type="number" tick={{ fontSize: 10 }} />
+                      <YAxis 
+                        type="category" 
+                        dataKey="name" 
+                        width={80} 
+                        tick={{ fontSize: 10 }}
+                      />
                       <Tooltip
                         formatter={(value) => [
                           `${value} orders`,
@@ -481,18 +526,18 @@ const ProductPopularity = () => {
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-lg shadow lg:col-span-2">
+              <div className="bg-white p-4 sm:p-6 rounded-lg shadow lg:col-span-2 overflow-x-auto">
                 <h3 className="text-lg font-semibold mb-4">Category Details</h3>
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Category
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Total Orders
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         % of Total
                       </th>
                     </tr>
@@ -510,13 +555,13 @@ const ProductPopularity = () => {
 
                       return (
                         <tr key={category.name}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm font-medium text-gray-900">
                             {category.name}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
                             {category.value.toLocaleString()}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
                             {percentage}%
                           </td>
                         </tr>
@@ -531,8 +576,8 @@ const ProductPopularity = () => {
           {/* Order Trends View */}
           {activeTab === "trends" && (
             <div className="space-y-6">
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h3 className="text-lg font-semibold mb-6">
+              <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
+                <h3 className="text-lg font-semibold mb-4 sm:mb-6">
                   Order Trends{" "}
                   {filters.timeRange === "day"
                     ? "Today"
@@ -542,15 +587,22 @@ const ProductPopularity = () => {
                     ? "This Month"
                     : "This Year"}
                 </h3>
-                <div className="h-80">
+                <div className="h-64 sm:h-80">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart
                       data={timeSeriesData}
-                      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                      margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
                     >
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
+                      <XAxis 
+                        dataKey="date" 
+                        tick={{ fontSize: 10 }}
+                        angle={-45}
+                        textAnchor="end"
+                        height={60}
+                        interval="preserveStartEnd"
+                      />
+                      <YAxis tick={{ fontSize: 10 }} />
                       <Tooltip
                         formatter={(value) => [`${value} orders`, "Orders"]}
                       />
@@ -567,26 +619,26 @@ const ProductPopularity = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white p-6 rounded-lg shadow">
-                  <h3 className="text-base font-medium text-gray-500">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+                <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
+                  <h3 className="text-sm sm:text-base font-medium text-gray-500">
                     Total Orders
                   </h3>
-                  <p className="text-3xl font-bold mt-2">
+                  <p className="text-2xl sm:text-3xl font-bold mt-2">
                     {timeSeriesData
                       .reduce((sum, data) => sum + data.orders, 0)
                       .toLocaleString()}
                   </p>
-                  <div className="mt-2 text-sm text-green-600">
+                  <div className="mt-2 text-xs sm:text-sm text-green-600">
                     +12.5% from previous period
                   </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-lg shadow">
-                  <h3 className="text-base font-medium text-gray-500">
+                <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
+                  <h3 className="text-sm sm:text-base font-medium text-gray-500">
                     Average Daily Orders
                   </h3>
-                  <p className="text-3xl font-bold mt-2">
+                  <p className="text-2xl sm:text-3xl font-bold mt-2">
                     {Math.round(
                       timeSeriesData.reduce(
                         (sum, data) => sum + data.orders,
@@ -594,16 +646,16 @@ const ProductPopularity = () => {
                       ) / timeSeriesData.length
                     ).toLocaleString()}
                   </p>
-                  <div className="mt-2 text-sm text-green-600">
+                  <div className="mt-2 text-xs sm:text-sm text-green-600">
                     +8.2% from previous period
                   </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-lg shadow">
-                  <h3 className="text-base font-medium text-gray-500">
+                <div className="bg-white p-4 sm:p-6 rounded-lg shadow sm:col-span-2 md:col-span-1">
+                  <h3 className="text-sm sm:text-base font-medium text-gray-500">
                     Peak Day
                   </h3>
-                  <p className="text-3xl font-bold mt-2">
+                  <p className="text-xl sm:text-3xl font-bold mt-2">
                     {
                       timeSeriesData.reduce(
                         (max, data) => (data.orders > max.orders ? data : max),
@@ -611,7 +663,7 @@ const ProductPopularity = () => {
                       ).date
                     }
                   </p>
-                  <div className="mt-2 text-sm text-gray-600">
+                  <div className="mt-2 text-xs sm:text-sm text-gray-600">
                     {timeSeriesData
                       .reduce(
                         (max, data) => (data.orders > max.orders ? data : max),

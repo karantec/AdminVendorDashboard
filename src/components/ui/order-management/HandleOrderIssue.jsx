@@ -30,6 +30,8 @@ import {
   TableRow,
   Paper,
   TablePagination,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import {
   Search as SearchIcon,
@@ -309,6 +311,9 @@ const HandleOrderIssues = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   // Effects
   useEffect(() => {
     filterIssues();
@@ -566,7 +571,7 @@ const HandleOrderIssues = () => {
                   sx={{ fontWeight: "bold" }}
                 />
               </Box>
-              <Box sx={{ display: "flex", gap: 1, mb: 3 }}>
+              <Box sx={{ display: "flex", gap: 1, mb: 3, flexWrap: 'wrap' }}>
                 <Chip
                   label={`Priority: ${selectedIssue.priority.toUpperCase()}`}
                   color={getPriorityColor(selectedIssue.priority)}
@@ -867,6 +872,8 @@ const HandleOrderIssues = () => {
               value={tabValue}
               onChange={handleTabChange}
               aria-label="issue tabs"
+              variant="scrollable"
+              scrollButtons="auto"
             >
               <Tab label="All Issues" />
               <Tab label="New" />
@@ -896,13 +903,13 @@ const HandleOrderIssues = () => {
                   <SearchIcon sx={{ color: "action.active", mr: 1 }} />
                 ),
               }}
-              sx={{ minWidth: "250px" }}
+              sx={{ minWidth: isMobile ? "100%" : "250px" }}
             />
 
             <FormControl
               variant="outlined"
               size="small"
-              sx={{ minWidth: "150px" }}
+              sx={{ minWidth: isMobile ? "100%" : "150px" }}
             >
               <InputLabel id="priority-filter-label">Priority</InputLabel>
               <Select
@@ -921,7 +928,7 @@ const HandleOrderIssues = () => {
             <FormControl
               variant="outlined"
               size="small"
-              sx={{ minWidth: "180px" }}
+              sx={{ minWidth: isMobile ? "100%" : "180px" }}
             >
               <InputLabel id="type-filter-label">Issue Type</InputLabel>
               <Select

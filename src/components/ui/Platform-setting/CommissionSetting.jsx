@@ -24,10 +24,29 @@ import {
   Alert,
   Snackbar,
   CircularProgress,
+  useTheme,
+  useMediaQuery,
+  Container,
+  IconButton,
+  Stack,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from "@mui/material";
-import { Save, Add, Delete, Edit } from "@mui/icons-material";
+import { 
+  Save, 
+  Add, 
+  Delete, 
+  Edit, 
+  ExpandMore,
+  Store as StoreIcon
+} from "@mui/icons-material";
 
 const CommissionSetting = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  
   const [globalCommissionRate, setGlobalCommissionRate] = useState(10);
   const [enableStoreSpecific, setEnableStoreSpecific] = useState(false);
   const [processingFee, setProcessingFee] = useState(2.5);
@@ -46,6 +65,7 @@ const CommissionSetting = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [expandedStore, setExpandedStore] = useState(null);
 
   const dummyStores = [
     { id: "1", name: "Fresh Mart" },
@@ -235,6 +255,10 @@ const CommissionSetting = () => {
     setSuccess(null);
   };
 
+  const handleStoreAccordionChange = (storeId) => (event, isExpanded) => {
+    setExpandedStore(isExpanded ? storeId : null);
+  };
+
   if (loading && storeCommissions.length === 0) {
     return (
       <Box
@@ -249,42 +273,524 @@ const CommissionSetting = () => {
   }
 
   return (
-    <Box p={3}>
-      <Typography variant="h4" gutterBottom>
-        Commission Settings
-      </Typography>
+    <Container maxWidth="xl">
+      <Box p={isMobile ? 1 : 3}>
+        <Typography variant="h4" gutterBottom>
+          Commission Settings
+        </Typography>
 
-      <Snackbar
-        open={!!error}
-        autoHideDuration={6000}
-        onClose={handleCloseAlert}
-      >
-        <Alert
+        <Snackbar
+          open={!!error}
+          autoHideDuration={6000}
           onClose={handleCloseAlert}
-          severity="error"
-          sx={{ width: "100%" }}
         >
-          {error}
-        </Alert>
-      </Snackbar>
+          <Alert
+            onClose={handleCloseAlert}
+            severity="error"
+            sx={{ width: "100%" }}
+          >
+            {error}
+          </Alert>
+        </Snackbar>
 
-      <Snackbar
-        open={!!success}
-        autoHideDuration={6000}
-        onClose={handleCloseAlert}
-      >
-        <Alert
+        <Snackbar
+          open={!!success}
+          autoHideDuration={6000}
           onClose={handleCloseAlert}
-          severity="success"
-          sx={{ width: "100%" }}
         >
-          {success}
-        </Alert>
-      </Snackbar>
+          <Alert
+            onClose={handleCloseAlert}
+            severity="success"
+            sx={{ width: "100%" }}
+          >
+            {success}
+          </Alert>
+        </Snackbar>
 
-      {/* Same JSX structure as before (Global and Store Settings UI) */}
-      {/* Skipping here to avoid repetition; use the same JSX from the TS version */}
-    </Box>
+        {/* Global Commission Settings */}
+        <Card sx={{ mb: 4 }}>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>
+              Global Commission Settings
+            </Typography>
+            
+            <Grid container spacing={isMobile ? 2 : 3}>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label="Global Commission Rate (%)"
+                  type="number"
+                  value={globalCommissionRate}
+                  onChange={(e) => setGlobalCommissionRate(Number(e.target.value))}
+                  InputProps={{
+                    inputProps: { min: 0, max: 100, step: 0.5 }
+                  }}
+                  margin="normal"
+                />
+              </Grid>
+              
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label="Processing Fee (%)"
+                  type="number"
+                  value={processingFee}
+                  onChange={(e) => setProcessingFee(Number(e.target.value))}
+                  InputProps={{
+                    inputProps: { min: 0, max: 100, step: 0.1 }
+                  }}
+                  margin="normal"
+                />
+              </Grid>
+              
+              <Grid item xs={12} md={6}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={tieredCommission}
+                      onChange={(e) => setTieredCommission(e.target.checked)}
+                    />
+                  }
+                  label="Enable Tiered Commission"
+                />
+              </Grid>
+              
+              <Grid item xs={12} md={6}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={enableStoreSpecific}
+                      onChange={(e) => setEnableStoreSpecific(e.target.checked)}
+                    />
+                  }
+                  label="Enable Store-Specific Commissions"
+                />
+              </Grid>
+              
+              <Grid item xs={12}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon={<Save />}
+                  onClick={handleSaveGlobalSettings}
+                  disabled={loading}
+                >
+                  Save Global Settings
+                </Button>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
+
+        {/* Store-Specific Commission Settings */}
+        {enableStoreSpecific && (
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Store-Specific Commission Settings
+              </Typography>
+              
+              <Grid container spacing={2} sx={{ mb: 3 }}>
+                <Grid item xs={12} sm={isMobile ? 12 : 8}>
+                  <FormControl fullWidth>
+                    <InputLabel>Select Store</InputLabel>
+                    <Select
+                      value={selectedStore}
+                      onChange={(e) => setSelectedStore(e.target.value)}
+                      label="Select Store"
+                    >
+                      <MenuItem value="">
+                        <em>None</em>
+                      </MenuItem>
+                      {dummyStores
+                        .filter(
+                          (store) =>
+                            !storeCommissions.some(
+                              (sc) => sc.storeId === store.id
+                            )
+                        )
+                        .map((store) => (
+                          <MenuItem key={store.id} value={store.id}>
+                            {store.name}
+                          </MenuItem>
+                        ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                
+                <Grid item xs={12} sm={isMobile ? 12 : 4}>
+                  <Button
+                    fullWidth={isMobile}
+                    variant="contained"
+                    startIcon={<Add />}
+                    onClick={handleAddStoreCommission}
+                    disabled={!selectedStore}
+                    sx={{ height: '100%' }}
+                  >
+                    Add Store
+                  </Button>
+                </Grid>
+              </Grid>
+
+              <Divider sx={{ my: 3 }} />
+
+              {/* Store Commission List */}
+              {storeCommissions.length > 0 ? (
+                isMobile ? (
+                  // Mobile view: Accordion style
+                  <Box>
+                    {storeCommissions.map((store) => (
+                      <Accordion 
+                        key={store.storeId}
+                        expanded={expandedStore === store.storeId}
+                        onChange={handleStoreAccordionChange(store.storeId)}
+                        sx={{ mb: 2 }}
+                      >
+                        <AccordionSummary expandIcon={<ExpandMore />}>
+                          <Stack direction="row" alignItems="center" spacing={1}>
+                            <StoreIcon color="primary" fontSize="small" />
+                            <Typography variant="subtitle1">{store.storeName}</Typography>
+                          </Stack>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                          <FormControlLabel
+                            control={
+                              <Switch
+                                checked={store.customCommission}
+                                onChange={(e) =>
+                                  handleToggleStoreCommission(
+                                    store.storeId,
+                                    e.target.checked
+                                  )
+                                }
+                              />
+                            }
+                            label="Custom Commission Rate"
+                          />
+                          
+                          {store.customCommission && (
+                            <Box sx={{ mt: 2 }}>
+                              <Typography variant="subtitle2" gutterBottom>
+                                Commission Tiers
+                              </Typography>
+                              
+                              {store.commissionTiers.length > 0 ? (
+                                <TableContainer component={Paper} sx={{ mb: 2 }}>
+                                  <Table size="small">
+                                    <TableHead>
+                                      <TableRow>
+                                        <TableCell>Min Value</TableCell>
+                                        <TableCell>Max Value</TableCell>
+                                        <TableCell>Rate (%)</TableCell>
+                                        <TableCell align="right">Actions</TableCell>
+                                      </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                      {store.commissionTiers.map((tier) => (
+                                        <TableRow key={tier.id}>
+                                          <TableCell>${tier.minOrderValue}</TableCell>
+                                          <TableCell>
+                                            {tier.maxOrderValue !== null
+                                              ? `$${tier.maxOrderValue}`
+                                              : "∞"}
+                                          </TableCell>
+                                          <TableCell>{tier.commissionRate}%</TableCell>
+                                          <TableCell align="right">
+                                            <IconButton
+                                              size="small"
+                                              onClick={() => handleEditTier(store.storeId, tier)}
+                                            >
+                                              <Edit fontSize="small" />
+                                            </IconButton>
+                                            <IconButton
+                                              size="small"
+                                              onClick={() =>
+                                                handleDeleteTier(store.storeId, tier.id)
+                                              }
+                                            >
+                                              <Delete fontSize="small" />
+                                            </IconButton>
+                                          </TableCell>
+                                        </TableRow>
+                                      ))}
+                                    </TableBody>
+                                  </Table>
+                                </TableContainer>
+                              ) : (
+                                <Alert severity="info" sx={{ mb: 2 }}>
+                                  No commission tiers added yet.
+                                </Alert>
+                              )}
+                              
+                              <Typography variant="subtitle2" gutterBottom>
+                                {editingTier ? "Edit Tier" : "Add New Tier"}
+                              </Typography>
+                              
+                              <Grid container spacing={2}>
+                                <Grid item xs={6}>
+                                  <TextField
+                                    fullWidth
+                                    size="small"
+                                    label="Min Order Value ($)"
+                                    type="number"
+                                    value={newTier.minOrderValue}
+                                    onChange={(e) =>
+                                      setNewTier({
+                                        ...newTier,
+                                        minOrderValue: Number(e.target.value),
+                                      })
+                                    }
+                                  />
+                                </Grid>
+                                <Grid item xs={6}>
+                                  <TextField
+                                    fullWidth
+                                    size="small"
+                                    label="Max Order Value ($)"
+                                    type="number"
+                                    value={newTier.maxOrderValue === null ? "" : newTier.maxOrderValue}
+                                    onChange={(e) =>
+                                      setNewTier({
+                                        ...newTier,
+                                        maxOrderValue: e.target.value === "" ? null : Number(e.target.value),
+                                      })
+                                    }
+                                    placeholder="Leave empty for no maximum"
+                                  />
+                                </Grid>
+                                <Grid item xs={6}>
+                                  <TextField
+                                    fullWidth
+                                    size="small"
+                                    label="Commission Rate (%)"
+                                    type="number"
+                                    value={newTier.commissionRate}
+                                    onChange={(e) =>
+                                      setNewTier({
+                                        ...newTier,
+                                        commissionRate: Number(e.target.value),
+                                      })
+                                    }
+                                    InputProps={{
+                                      inputProps: { min: 0, max: 100, step: 0.5 }
+                                    }}
+                                  />
+                                </Grid>
+                                <Grid item xs={6}>
+                                  {editingTier ? (
+                                    <Button
+                                      fullWidth
+                                      variant="contained"
+                                      color="primary"
+                                      onClick={() => handleUpdateTier(store.storeId)}
+                                    >
+                                      Update Tier
+                                    </Button>
+                                  ) : (
+                                    <Button
+                                      fullWidth
+                                      variant="contained"
+                                      startIcon={<Add />}
+                                      onClick={() => handleAddTier(store.storeId)}
+                                    >
+                                      Add Tier
+                                    </Button>
+                                  )}
+                                </Grid>
+                              </Grid>
+                            </Box>
+                          )}
+                        </AccordionDetails>
+                      </Accordion>
+                    ))}
+                  </Box>
+                ) : (
+                  // Desktop/Tablet view: Table style
+                  <TableContainer component={Paper} sx={{ mb: 3 }}>
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Store Name</TableCell>
+                          <TableCell>Custom Commission</TableCell>
+                          <TableCell>Commission Tiers</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {storeCommissions.map((store) => (
+                          <TableRow key={store.storeId}>
+                            <TableCell>{store.storeName}</TableCell>
+                            <TableCell>
+                              <FormControlLabel
+                                control={
+                                  <Switch
+                                    checked={store.customCommission}
+                                    onChange={(e) =>
+                                      handleToggleStoreCommission(
+                                        store.storeId,
+                                        e.target.checked
+                                      )
+                                    }
+                                  />
+                                }
+                                label=""
+                              />
+                            </TableCell>
+                            <TableCell>
+                              {store.customCommission && (
+                                <Box>
+                                  {store.commissionTiers.length > 0 ? (
+                                    <TableContainer component={Paper} variant="outlined">
+                                      <Table size="small">
+                                        <TableHead>
+                                          <TableRow>
+                                            <TableCell>Min Value</TableCell>
+                                            <TableCell>Max Value</TableCell>
+                                            <TableCell>Rate (%)</TableCell>
+                                            <TableCell align="right">Actions</TableCell>
+                                          </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                          {store.commissionTiers.map((tier) => (
+                                            <TableRow key={tier.id}>
+                                              <TableCell>${tier.minOrderValue}</TableCell>
+                                              <TableCell>
+                                                {tier.maxOrderValue !== null
+                                                  ? `$${tier.maxOrderValue}`
+                                                  : "∞"}
+                                              </TableCell>
+                                              <TableCell>{tier.commissionRate}%</TableCell>
+                                              <TableCell align="right">
+                                                <IconButton
+                                                  size="small"
+                                                  onClick={() => handleEditTier(store.storeId, tier)}
+                                                >
+                                                  <Edit fontSize="small" />
+                                                </IconButton>
+                                                <IconButton
+                                                  size="small"
+                                                  onClick={() =>
+                                                    handleDeleteTier(store.storeId, tier.id)
+                                                  }
+                                                >
+                                                  <Delete fontSize="small" />
+                                                </IconButton>
+                                              </TableCell>
+                                            </TableRow>
+                                          ))}
+                                        </TableBody>
+                                      </Table>
+                                    </TableContainer>
+                                  ) : (
+                                    <Typography variant="body2" color="text.secondary">
+                                      No tiers defined
+                                    </Typography>
+                                  )}
+                                  
+                                  <Box sx={{ mt: 2, p: 2, bgcolor: 'background.paper', borderRadius: 1 }}>
+                                    <Typography variant="subtitle2" gutterBottom>
+                                      {editingTier ? "Edit Tier" : "Add New Tier"}
+                                    </Typography>
+                                    
+                                    <Grid container spacing={2} alignItems="center">
+                                      <Grid item xs={12} sm={2}>
+                                        <TextField
+                                          fullWidth
+                                          size="small"
+                                          label="Min Order Value ($)"
+                                          type="number"
+                                          value={newTier.minOrderValue}
+                                          onChange={(e) =>
+                                            setNewTier({
+                                              ...newTier,
+                                              minOrderValue: Number(e.target.value),
+                                            })
+                                          }
+                                        />
+                                      </Grid>
+                                      <Grid item xs={12} sm={2}>
+                                        <TextField
+                                          fullWidth
+                                          size="small"
+                                          label="Max Order Value ($)"
+                                          type="number"
+                                          value={newTier.maxOrderValue === null ? "" : newTier.maxOrderValue}
+                                          onChange={(e) =>
+                                            setNewTier({
+                                              ...newTier,
+                                              maxOrderValue: e.target.value === "" ? null : Number(e.target.value),
+                                            })
+                                          }
+                                          placeholder="Leave empty for no maximum"
+                                        />
+                                      </Grid>
+                                      <Grid item xs={12} sm={2}>
+                                        <TextField
+                                          fullWidth
+                                          size="small"
+                                          label="Commission Rate (%)"
+                                          type="number"
+                                          value={newTier.commissionRate}
+                                          onChange={(e) =>
+                                            setNewTier({
+                                              ...newTier,
+                                              commissionRate: Number(e.target.value),
+                                            })
+                                          }
+                                          InputProps={{
+                                            inputProps: { min: 0, max: 100, step: 0.5 }
+                                          }}
+                                        />
+                                      </Grid>
+                                      <Grid item xs={12} sm={3}>
+                                        {editingTier ? (
+                                          <Button
+                                            variant="contained"
+                                            color="primary"
+                                            onClick={() => handleUpdateTier(store.storeId)}
+                                          >
+                                            Update Tier
+                                          </Button>
+                                        ) : (
+                                          <Button
+                                            variant="contained"
+                                            startIcon={<Add />}
+                                            onClick={() => handleAddTier(store.storeId)}
+                                          >
+                                            Add Tier
+                                          </Button>
+                                        )}
+                                      </Grid>
+                                    </Grid>
+                                  </Box>
+                                </Box>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )
+              ) : (
+                <Alert severity="info">No store-specific commission settings added yet.</Alert>
+              )}
+              
+              {storeCommissions.length > 0 && (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon={<Save />}
+                  onClick={handleSaveStoreCommissions}
+                  disabled={loading}
+                >
+                  Save Store Settings
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        )}
+      </Box>
+    </Container>
   );
 };
 

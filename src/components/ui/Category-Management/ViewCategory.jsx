@@ -14,9 +14,10 @@ import {
   Paper,
   Typography,
   Alert,
+  useMediaQuery
 } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowBack } from "@mui/icons-material";
+import { ArrowBack, CalendarToday, Update } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 import Sidebar from "../../../layout/AppSidebar"; // Adjust path as needed
 
@@ -24,12 +25,20 @@ const ViewCategory = () => {
   const theme = useTheme();
   const { id } = useParams();
   const navigate = useNavigate();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
 
   // State for category
   const [category, setCategory] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
+
+  // Effect to handle responsive sidebar
+  useEffect(() => {
+    setSidebarOpen(!isMobile);
+  }, [isMobile]);
 
   // Fetch category data (replace with API call in real implementation)
   useEffect(() => {
@@ -100,16 +109,51 @@ const ViewCategory = () => {
     setImageDialogOpen(false);
   };
 
-  return (
-    <Box sx={{ display: "flex" }}>
-      <Sidebar />
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
 
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <Box sx={{ mb: 3 }}>
-          <IconButton onClick={handleBack} sx={{ mr: 1 }}>
+  return (
+    <Box sx={{ display: "flex", flexDirection: { xs: 'column', md: 'row' } }}>
+      <Sidebar open={sidebarOpen} onToggle={toggleSidebar} />
+
+      <Box 
+        component="main" 
+        sx={{ 
+          flexGrow: 1, 
+          p: { xs: 2, sm: 3 },
+          width: { xs: '100%', md: `calc(100% - ${sidebarOpen ? '240px' : '0px'})` },
+          transition: theme.transitions.create(['width', 'margin'], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.leavingScreen,
+          }),
+        }}
+      >
+        <Box 
+          sx={{ 
+            mb: 3, 
+            display: 'flex', 
+            alignItems: 'center',
+            flexWrap: 'wrap'
+          }}
+        >
+          <IconButton 
+            onClick={handleBack} 
+            sx={{ mr: 1 }}
+            aria-label="Back"
+          >
             <ArrowBack />
           </IconButton>
-          <Typography variant="h4" component="span">
+          <Typography 
+            variant={isMobile ? "h5" : "h4"} 
+            component="h1"
+            sx={{ 
+              flexGrow: 1,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}
+          >
             Category Details
           </Typography>
         </Box>
@@ -123,26 +167,41 @@ const ViewCategory = () => {
             {error}
           </Alert>
         ) : category ? (
-          <Grid container spacing={3}>
+          <Grid container spacing={{ xs: 2, md: 3 }}>
             <Grid item xs={12} md={4}>
-              <Card>
+              <Card 
+                elevation={2}
+                sx={{ 
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}
+              >
                 <CardMedia
                   component="img"
-                  height="300"
+                  height={isMobile ? "200" : "300"}
                   image={category.imageUrl}
                   alt={category.name}
                   onClick={handleImageClick}
-                  sx={{ cursor: "pointer", objectFit: "cover" }}
+                  sx={{ 
+                    cursor: "pointer", 
+                    objectFit: "cover",
+                    flexShrink: 0
+                  }}
                 />
-                <CardContent>
+                <CardContent sx={{ flexGrow: 1 }}>
                   <Box
-                    sx={{ display: "flex", justifyContent: "center", mb: 2 }}
+                    sx={{ 
+                      display: "flex", 
+                      justifyContent: "center", 
+                      mb: 2 
+                    }}
                   >
                     <Chip
                       label={category.isActive ? "Active" : "Inactive"}
                       color={category.isActive ? "success" : "error"}
                       variant="outlined"
-                      size="medium"
+                      size={isMobile ? "small" : "medium"}
                     />
                   </Box>
                   <Typography
@@ -157,35 +216,78 @@ const ViewCategory = () => {
             </Grid>
 
             <Grid item xs={12} md={8}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h5" gutterBottom>
+              <Card 
+                elevation={2}
+                sx={{ 
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}
+              >
+                <CardContent sx={{ flexGrow: 1 }}>
+                  <Typography 
+                    variant={isMobile ? "h6" : "h5"} 
+                    gutterBottom
+                    sx={{
+                      fontWeight: 'bold',
+                      borderBottom: `1px solid ${theme.palette.divider}`,
+                      pb: 1
+                    }}
+                  >
                     {category.name}
                   </Typography>
 
-                  <Typography variant="subtitle1" gutterBottom sx={{ mt: 2 }}>
+                  <Typography 
+                    variant="subtitle1" 
+                    gutterBottom 
+                    sx={{ 
+                      mt: 2,
+                      fontWeight: 'medium'
+                    }}
+                  >
                     Description
                   </Typography>
-                  <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
+                  <Paper 
+                    variant="outlined" 
+                    sx={{ 
+                      p: { xs: 1.5, sm: 2 }, 
+                      mb: 3,
+                      backgroundColor: theme.palette.background.default
+                    }}
+                  >
                     <Typography variant="body1">
                       {category.description}
                     </Typography>
                   </Paper>
 
                   <Grid container spacing={2}>
-                    <Grid item xs={6}>
-                      <Typography variant="subtitle1" gutterBottom>
-                        Created At
-                      </Typography>
-                      <Typography variant="body1">
+                    <Grid item xs={12} sm={6}>
+                      <Box sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center',
+                        mb: 1
+                      }}>
+                        <CalendarToday fontSize="small" sx={{ mr: 1, color: theme.palette.text.secondary }} />
+                        <Typography variant="subtitle1" gutterBottom sx={{ mb: 0 }}>
+                          Created At
+                        </Typography>
+                      </Box>
+                      <Typography variant="body1" sx={{ pl: 4 }}>
                         {new Date(category.createdAt).toLocaleString()}
                       </Typography>
                     </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="subtitle1" gutterBottom>
-                        Last Updated
-                      </Typography>
-                      <Typography variant="body1">
+                    <Grid item xs={12} sm={6}>
+                      <Box sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center',
+                        mb: 1
+                      }}>
+                        <Update fontSize="small" sx={{ mr: 1, color: theme.palette.text.secondary }} />
+                        <Typography variant="subtitle1" gutterBottom sx={{ mb: 0 }}>
+                          Last Updated
+                        </Typography>
+                      </Box>
+                      <Typography variant="body1" sx={{ pl: 4 }}>
                         {new Date(category.updatedAt).toLocaleString()}
                       </Typography>
                     </Grid>
@@ -202,9 +304,21 @@ const ViewCategory = () => {
           onClose={handleCloseImageDialog}
           maxWidth="md"
           fullWidth
+          PaperProps={{
+            sx: {
+              m: { xs: 1, sm: 2, md: 3 },
+              width: { xs: 'calc(100% - 16px)', sm: 'auto' },
+              maxHeight: { xs: '80vh', sm: '85vh', md: '90vh' }
+            }
+          }}
         >
-          <DialogTitle>{category?.name} Image</DialogTitle>
-          <DialogContent>
+          <DialogTitle sx={{ 
+            typography: { xs: 'h6', sm: 'h5' },
+            py: { xs: 1.5, sm: 2 }
+          }}>
+            {category?.name} Image
+          </DialogTitle>
+          <DialogContent sx={{ p: { xs: 1, sm: 2 } }}>
             {category && (
               <Box sx={{ display: "flex", justifyContent: "center" }}>
                 <img
@@ -212,7 +326,7 @@ const ViewCategory = () => {
                   alt={category.name}
                   style={{
                     maxWidth: "100%",
-                    maxHeight: "70vh",
+                    maxHeight: isMobile ? "50vh" : "70vh",
                     objectFit: "contain",
                   }}
                 />
