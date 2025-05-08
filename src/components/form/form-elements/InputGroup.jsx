@@ -23,7 +23,7 @@ export default function InputGroup() {
           <Label>Email</Label>
           <div className="relative">
             <Input
-              placeholder="info@gmail.com"
+              placeholder="info@gdwfmail.com"
               type="text"
               className="pl-[62px]"
             />
