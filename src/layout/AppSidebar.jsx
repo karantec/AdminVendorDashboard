@@ -11,7 +11,7 @@ import {
   PlugInIcon,
   MenuIcon,
   XIcon,
-} from "../icons";
+} from "../Icons";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
 
