@@ -1,18 +1,20 @@
 import { useState } from "react";
+import { FiEye, FiEyeOff, FiClock } from "react-icons/fi";
 import ComponentCard from "../../common/ComponentCard";
 import Label from "../Label";
 import Input from "../input/InputField";
 import Select from "../Select";
-import { EyeCloseIcon, TimeIcon } from "../../../icons";
 import DatePicker from "../date-picker";
 
 export default function DefaultInputs() {
   const [showPassword, setShowPassword] = useState(false);
+
   const options = [
     { value: "marketing", label: "Marketing" },
     { value: "template", label: "Template" },
     { value: "development", label: "Development" },
   ];
+
   const handleSelectChange = (value) => {
     console.log("Selected value:", value);
   };
@@ -45,14 +47,15 @@ export default function DefaultInputs() {
               placeholder="Enter your password"
             />
             <button
+              type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
             >
-              {/* {showPassword ? (
-                <EyeIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
+              {showPassword ? (
+                <FiEye className="text-gray-500 dark:text-gray-400 size-5" />
               ) : (
-                <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
-              )} */}
+                <FiEyeOff className="text-gray-500 dark:text-gray-400 size-5" />
+              )}
             </button>
           </div>
         </div>
@@ -63,7 +66,6 @@ export default function DefaultInputs() {
             label="Date Picker Input"
             placeholder="Select a date"
             onChange={(dates, currentDateString) => {
-              // Handle your logic
               console.log({ dates, currentDateString });
             }}
           />
@@ -79,10 +81,11 @@ export default function DefaultInputs() {
               onChange={(e) => console.log(e.target.value)}
             />
             <span className="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
-              <TimeIcon className="size-6" />
+              <FiClock className="size-6" />
             </span>
           </div>
         </div>
+
         <div>
           <Label htmlFor="tm">Input with Payment</Label>
           <div className="relative">
