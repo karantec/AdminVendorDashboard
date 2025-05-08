@@ -154,13 +154,51 @@ const othersItems = [
 ];
 
 const AppSidebar = () => {
-  const { isExpanded, setIsExpanded, isMobileOpen, setIsMobileOpen, isHovered, setIsHovered } = useSidebar();
+  const {
+    isExpanded,
+    isMobileOpen,
+    isHovered,
+    openSubmenu,
+    isDesktop,
+    toggleSidebar,
+    toggleMobileSidebar,
+    closeMobileSidebar,
+    setIsHovered,
+    toggleSubmenu,
+    closeOnRouteChange,
+  } = useSidebar();
+
   const location = useLocation();
   const sidebarRef = useRef(null);
-
-  const [openSubmenu, setOpenSubmenu] = useState(null);
   const [subMenuHeight, setSubMenuHeight] = useState({});
   const subMenuRefs = useRef({});
+
+  // Track if this is first render
+  const isInitialRender = useRef(true);
+
+  // Close sidebar on route change (useful for mobile)
+  useEffect(() => {
+    closeOnRouteChange();
+  }, [location.pathname, closeOnRouteChange]);
+
+  // Store sidebar state in localStorage for persistence across page navigation
+  useEffect(() => {
+    if (isInitialRender.current) {
+      // Only load from localStorage on first render for desktop or if explicitly set for mobile
+      const storedExpanded = localStorage.getItem("isExpanded");
+      if (storedExpanded === "true" && isDesktop) {
+        toggleSidebar();
+      }
+      isInitialRender.current = false;
+    }
+  }, []);
+
+  // Save sidebar state to localStorage whenever it changes
+  useEffect(() => {
+    if (!isInitialRender.current && isDesktop) {
+      localStorage.setItem("isExpanded", isExpanded.toString());
+    }
+  }, [isExpanded, isDesktop]);
 
   const isActive = useCallback(
     (path) => location.pathname === path,
@@ -170,8 +208,12 @@ const AppSidebar = () => {
   // Handle click outside to close mobile sidebar
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(event.target) && isMobileOpen) {
-        setIsMobileOpen(false);
+      if (
+        sidebarRef.current &&
+        !sidebarRef.current.contains(event.target) &&
+        isMobileOpen
+      ) {
+        closeMobileSidebar();
       }
     };
 
@@ -179,147 +221,60 @@ const AppSidebar = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isMobileOpen, setIsMobileOpen]);
-
-  // Handle window resize
-  useEffect(() => {
-    const handleResize = () => {
-      // Close mobile menu when switching to desktop
-      if (window.innerWidth >= 1024 && isMobileOpen) {
-        setIsMobileOpen(false);
-      }
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [isMobileOpen, setIsMobileOpen]);
-
-  // Match active menu item with current route
-  useEffect(() => {
-    let submenuMatched = false;
-
-    navItems.forEach((nav, index) => {
-      if (nav.subItems) {
-        nav.subItems.forEach((subItem) => {
-          if (isActive(subItem.path)) {
-            setOpenSubmenu({
-              type: "main",
-              index,
-            });
-            submenuMatched = true;
-          }
-        });
-      }
-    });
-
-    if (!submenuMatched) {
-      othersItems.forEach((nav, index) => {
-        if (nav.subItems) {
-          nav.subItems.forEach((subItem) => {
-            if (isActive(subItem.path)) {
-              setOpenSubmenu({
-                type: "others",
-                index,
-              });
-              submenuMatched = true;
-            }
-          });
-        }
-      });
-    }
-
-    if (!submenuMatched) {
-      setOpenSubmenu(null);
-    }
-  }, [location, isActive]);
+  }, [isMobileOpen, closeMobileSidebar]);
 
   // Update submenu height when opened
   useEffect(() => {
-    if (openSubmenu !== null) {
-      const key = `${openSubmenu.type}-${openSubmenu.index}`;
-      if (subMenuRefs.current[key]) {
-        setSubMenuHeight((prevHeights) => ({
-          ...prevHeights,
-          [key]: subMenuRefs.current[key]?.scrollHeight || 0,
-        }));
+    // Add a small delay to ensure the DOM has been updated
+    const timer = setTimeout(() => {
+      if (openSubmenu !== null) {
+        const key = openSubmenu;
+        if (subMenuRefs.current && subMenuRefs.current[key]) {
+          setSubMenuHeight((prevHeights) => ({
+            ...prevHeights,
+            [key]: subMenuRefs.current[key]?.scrollHeight || 0,
+          }));
+        }
       }
-    }
+    }, 10);
+
+    return () => clearTimeout(timer);
   }, [openSubmenu]);
 
   const handleMobileToggle = () => {
     setIsMobileOpen(!isMobileOpen);
   };
 
-  const handleDesktopToggle = () => {
-    setIsExpanded(!isExpanded);
-  };
-
-  const handleSubmenuToggle = (index, menuType) => {
-    setOpenSubmenu((prevOpenSubmenu) => {
-      if (
-        prevOpenSubmenu &&
-        prevOpenSubmenu.type === menuType &&
-        prevOpenSubmenu.index === index
-      ) {
-        return null;
-      }
-      return { type: menuType, index };
-    });
+  // Handle navigation click - close mobile sidebar when link is clicked
+  const handleNavClick = () => {
+    if (!isDesktop) {
+      closeMobileSidebar();
+    }
   };
 
   const renderMenuItems = (items, menuType) => (
     <ul className="flex flex-col gap-4">
-      {items.map((nav, index) => (
-        <li key={nav.name}>
-          {nav.subItems ? (
-            <button
-              onClick={() => handleSubmenuToggle(index, menuType)}
-              className={`menu-item group ${
-                openSubmenu?.type === menuType && openSubmenu?.index === index
-                  ? "menu-item-active"
-                  : "menu-item-inactive"
-              } cursor-pointer ${
-                !isExpanded && !isHovered && !isMobileOpen
-                  ? "lg:justify-center"
-                  : "lg:justify-start"
-              } w-full`}
-            >
-              <span
-                className={`menu-item-icon-size flex-shrink-0 ${
-                  openSubmenu?.type === menuType && openSubmenu?.index === index
-                    ? "menu-item-icon-active"
-                    : "menu-item-icon-inactive"
-                }`}
-              >
-                {nav.icon}
-              </span>
-              {(isExpanded || isHovered || isMobileOpen) && (
-                <span className="menu-item-text truncate">{nav.name}</span>
-              )}
-              {(isExpanded || isHovered || isMobileOpen) && (
-                <ChevronDownIcon
-                  className={`ml-auto w-5 h-5 flex-shrink-0 transition-transform duration-200 ${
-                    openSubmenu?.type === menuType &&
-                    openSubmenu?.index === index
-                      ? "rotate-180 text-brand-500"
-                      : ""
-                  }`}
-                />
-              )}
-            </button>
-          ) : (
-            nav.path && (
-              <Link
-                to={nav.path}
+      {items.map((nav, index) => {
+        const itemKey = `${menuType}-${nav.name}`;
+
+        return (
+          <li key={nav.name}>
+            {nav.subItems ? (
+              <button
+                onClick={() => handleSubmenuToggle(itemKey)}
                 className={`menu-item group ${
-                  isActive(nav.path) ? "menu-item-active" : "menu-item-inactive"
+                  openSubmenu === itemKey
+                    ? "menu-item-active"
+                    : "menu-item-inactive"
+                } cursor-pointer ${
+                  !isExpanded && !isHovered && !isMobileOpen
+                    ? "lg:justify-center"
+                    : "lg:justify-start"
                 } w-full`}
               >
                 <span
                   className={`menu-item-icon-size flex-shrink-0 ${
-                    isActive(nav.path)
+                    openSubmenu === itemKey
                       ? "menu-item-icon-active"
                       : "menu-item-icon-inactive"
                   }`}
@@ -329,72 +284,99 @@ const AppSidebar = () => {
                 {(isExpanded || isHovered || isMobileOpen) && (
                   <span className="menu-item-text truncate">{nav.name}</span>
                 )}
-              </Link>
-            )
-          )}
-          {nav.subItems && (isExpanded || isHovered || isMobileOpen) && (
-            <div
-              ref={(el) => {
-                subMenuRefs.current[`${menuType}-${index}`] = el;
-              }}
-              className="overflow-hidden transition-all duration-300"
-              style={{
-                height:
-                  openSubmenu?.type === menuType && openSubmenu?.index === index
-                    ? `${subMenuHeight[`${menuType}-${index}`]}px`
-                    : "0px",
-              }}
-            >
-              <ul className="mt-2 space-y-1 ml-9">
-                {nav.subItems.map((subItem) => (
-                  <li key={subItem.name}>
-                    <Link
-                      to={subItem.path}
-                      className={`menu-dropdown-item ${
-                        isActive(subItem.path)
-                          ? "menu-dropdown-item-active"
-                          : "menu-dropdown-item-inactive"
-                      } flex items-center`}
-                      onClick={() => {
-                        // Close mobile menu when clicking a link
-                        if (window.innerWidth < 1024) {
-                          setIsMobileOpen(false);
-                        }
-                      }}
-                    >
-                      <span className="truncate">{subItem.name}</span>
-                      <span className="flex items-center gap-1 ml-auto flex-shrink-0">
-                        {subItem.new && (
-                          <span
-                            className={`ml-auto ${
-                              isActive(subItem.path)
-                                ? "menu-dropdown-badge-active"
-                                : "menu-dropdown-badge-inactive"
-                            } menu-dropdown-badge`}
-                          >
-                            new
-                          </span>
-                        )}
-                        {subItem.pro && (
-                          <span
-                            className={`ml-auto ${
-                              isActive(subItem.path)
-                                ? "menu-dropdown-badge-active"
-                                : "menu-dropdown-badge-inactive"
-                            } menu-dropdown-badge`}
-                          >
-                            pro
-                          </span>
-                        )}
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </li>
-      ))}
+                {(isExpanded || isHovered || isMobileOpen) && (
+                  <ChevronDownIcon
+                    className={`ml-auto w-5 h-5 flex-shrink-0 transition-transform duration-200 ${
+                      openSubmenu === itemKey ? "rotate-180 text-brand-500" : ""
+                    }`}
+                  />
+                )}
+              </button>
+            ) : (
+              nav.path && (
+                <Link
+                  to={nav.path}
+                  onClick={handleNavClick}
+                  className={`menu-item group ${
+                    isActive(nav.path)
+                      ? "menu-item-active"
+                      : "menu-item-inactive"
+                  } w-full`}
+                >
+                  <span
+                    className={`menu-item-icon-size flex-shrink-0 ${
+                      isActive(nav.path)
+                        ? "menu-item-icon-active"
+                        : "menu-item-icon-inactive"
+                    }`}
+                  >
+                    {nav.icon}
+                  </span>
+                  {(isExpanded || isHovered || isMobileOpen) && (
+                    <span className="menu-item-text truncate">{nav.name}</span>
+                  )}
+                </Link>
+              )
+            )}
+            {nav.subItems && (isExpanded || isHovered || isMobileOpen) && (
+              <div
+                ref={(el) => {
+                  subMenuRefs.current[itemKey] = el;
+                }}
+                className="overflow-hidden transition-all duration-300"
+                style={{
+                  height:
+                    openSubmenu === itemKey
+                      ? `${subMenuHeight[itemKey]}px`
+                      : "0px",
+                }}
+              >
+                <ul className="mt-2 space-y-1 ml-9">
+                  {nav.subItems.map((subItem) => (
+                    <li key={subItem.name}>
+                      <Link
+                        to={subItem.path}
+                        onClick={handleNavClick}
+                        className={`menu-dropdown-item ${
+                          isActive(subItem.path)
+                            ? "menu-dropdown-item-active"
+                            : "menu-dropdown-item-inactive"
+                        } flex items-center`}
+                      >
+                        <span className="truncate">{subItem.name}</span>
+                        <span className="flex items-center gap-1 ml-auto flex-shrink-0">
+                          {subItem.new && (
+                            <span
+                              className={`ml-auto ${
+                                isActive(subItem.path)
+                                  ? "menu-dropdown-badge-active"
+                                  : "menu-dropdown-badge-inactive"
+                              } menu-dropdown-badge`}
+                            >
+                              new
+                            </span>
+                          )}
+                          {subItem.pro && (
+                            <span
+                              className={`ml-auto ${
+                                isActive(subItem.path)
+                                  ? "menu-dropdown-badge-active"
+                                  : "menu-dropdown-badge-inactive"
+                              } menu-dropdown-badge`}
+                            >
+                              pro
+                            </span>
+                          )}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </li>
+        );
+      })}
     </ul>
   );
 
@@ -410,18 +392,18 @@ const AppSidebar = () => {
   // Mobile toggle button
   const mobileToggle = (
     <button
-      onClick={handleMobileToggle}
-      className="fixed z-50 bottom-6 left-6 lg:hidden p-3 bg-blue-600 text-white rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-      aria-label={isMobileOpen ? "Close sidebar" : "Open sidebar"}
+      onClick={toggleMobileSidebar}
+      className="fixed z-50 bottom-6 left-6 p-3 bg-blue-600 text-white rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400 lg:hidden"
+      aria-label="Open sidebar"
     >
-      {isMobileOpen ? <XIcon className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
+      <MenuIcon className="w-6 h-6" />
     </button>
   );
 
   // Desktop toggle button
   const desktopToggle = (
     <button
-      onClick={handleDesktopToggle}
+      onClick={toggleSidebar}
       className="hidden lg:flex items-center justify-center p-2 my-2 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300"
       aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
     >
@@ -435,34 +417,34 @@ const AppSidebar = () => {
 
   // Mobile overlay backdrop
   const overlay = isMobileOpen && (
-    <div 
+    <div
       className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-      onClick={() => setIsMobileOpen(false)}
+      onClick={toggleMobileSidebar}
     />
   );
 
   return (
     <>
       {overlay}
-      {mobileToggle}
+      {!isMobileOpen && mobileToggle}
       <aside
         ref={sidebarRef}
         className={sidebarClasses}
-        onMouseEnter={() => !isMobileOpen && setIsHovered(true)}
-        onMouseLeave={() => !isMobileOpen && setIsHovered(false)}
+        onMouseEnter={() => isDesktop && !isExpanded && setIsHovered(true)}
+        onMouseLeave={() => isDesktop && !isExpanded && setIsHovered(false)}
       >
         <div className="flex items-center justify-between mb-6">
           {(isExpanded || isHovered || isMobileOpen) && (
             <h1 className="text-lg font-semibold">Admin Portal</h1>
           )}
-          {desktopToggle}
+          {isDesktop && desktopToggle}
           {isMobileOpen && (
             <button
-              onClick={() => setIsMobileOpen(false)}
-              className="lg:hidden p-1 focus:outline-none focus:ring-2 focus:ring-gray-300 rounded"
+              onClick={closeMobileSidebar}
+              className="lg:hidden p-2 rounded-full hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300"
               aria-label="Close sidebar"
             >
-              <XIcon className="w-5 h-5" />
+              <XIcon className="w-6 h-6" />
             </button>
           )}
         </div>
