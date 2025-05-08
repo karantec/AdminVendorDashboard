@@ -16,8 +16,6 @@ export default function SidebarWidget() {
         ${!isVisible ? "max-w-12 p-2" : "max-w-60"}
       `}>
       
-      {/* Content removed as requested */}
-      
       {/* Responsive styles */}
       <style jsx>{`
         @media (max-width: 1024px) {

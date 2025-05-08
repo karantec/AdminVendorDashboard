@@ -20,16 +20,20 @@ export const SidebarProvider = ({ children }) => {
 
   useEffect(() => {
     const handleResize = () => {
-      const mobile = window.innerWidth < 768;
+      const mobile = window.innerWidth < 1024; // Matches lg breakpoint in Tailwind
       setIsMobile(mobile);
       if (!mobile) {
         setIsMobileOpen(false);
       }
     };
 
+    // Initialize
     handleResize();
+    
+    // Update on resize
     window.addEventListener("resize", handleResize);
 
+    // Clean up
     return () => {
       window.removeEventListener("resize", handleResize);
     };
@@ -57,6 +61,8 @@ export const SidebarProvider = ({ children }) => {
         openSubmenu,
         toggleSidebar,
         toggleMobileSidebar,
+        setIsExpanded,
+        setIsMobileOpen, // Added to match what AppSidebar expects
         setIsHovered,
         setActiveItem,
         toggleSubmenu,

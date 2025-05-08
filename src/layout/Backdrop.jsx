@@ -25,17 +25,13 @@ const Backdrop = () => {
 
   if (!isMobileOpen) return null;
 
+  // Return a backdrop element that closes the sidebar when clicked
   return (
     <div
-      className="fixed inset-0 z-40  lg:hidden" // Removed backdrop-blur, reduced opacity
+      className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
       onClick={toggleMobileSidebar}
       aria-hidden="true"
-      role="presentation"
-      style={{
-        animation: "fadeIn 0.2s ease-out forwards"
-      }}
-    >
-    </div>
+    />
   );
 };
 

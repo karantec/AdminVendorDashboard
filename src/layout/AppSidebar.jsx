@@ -248,7 +248,6 @@ const AppSidebar = () => {
     }
   }, [openSubmenu]);
 
-  // FIX: Improved toggle handlers with explicit names
   const handleMobileToggle = () => {
     setIsMobileOpen(!isMobileOpen);
   };
@@ -399,17 +398,16 @@ const AppSidebar = () => {
     </ul>
   );
 
-  // FIX: Updated z-index and positioning for better stacking
+  // Updated sidebarClasses to fix mobile and desktop appearance
   const sidebarClasses = `
-    fixed z-50 h-screen transition-all duration-300
-    ${isMobileOpen ? "left-0" : "-left-full md:-left-64 lg:left-0"}
-    ${isExpanded ? "w-64" : "w-20"}
-    ${isMobileOpen ? "w-3/4 sm:w-64" : ""}
+    fixed z-50 h-screen transition-all duration-300 ease-in-out
+    ${isMobileOpen ? "left-0 w-3/4 sm:w-64" : "-left-full md:-left-64"}
+    lg:left-0 ${isExpanded ? "lg:w-64" : "lg:w-20"}
     lg:mt-4 p-4 bg-white border border-gray-200 shadow-lg
     overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300
   `;
 
-  // FIX: Updated mobile toggle button with improved styles and z-index
+  // Mobile toggle button
   const mobileToggle = (
     <button
       onClick={handleMobileToggle}
@@ -420,7 +418,7 @@ const AppSidebar = () => {
     </button>
   );
 
-  // FIX: Improved desktop toggle button styles for better visibility and interaction
+  // Desktop toggle button
   const desktopToggle = (
     <button
       onClick={handleDesktopToggle}
@@ -435,7 +433,7 @@ const AppSidebar = () => {
     </button>
   );
 
-  // FIX: Updated overlay z-index to ensure proper layering
+  // Mobile overlay backdrop
   const overlay = isMobileOpen && (
     <div 
       className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
@@ -475,8 +473,6 @@ const AppSidebar = () => {
           {(isExpanded || isHovered || isMobileOpen) && <SidebarWidget />}
         </nav>
       </aside>
-      {/* Main content spacer - add this to your layout component */}
-      <div className={`lg:ml-${isExpanded ? '64' : '20'} transition-all duration-300`}></div>
     </>
   );
 };
