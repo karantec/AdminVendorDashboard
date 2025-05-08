@@ -2,28 +2,26 @@ import { useSidebar } from "../context/SidebarContext";
 
 export default function SidebarWidget() {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
-  
+
   // Only show full widget content when sidebar is expanded or on hover/mobile
   const isVisible = isExpanded || isHovered || isMobileOpen;
 
   return (
-    <div
-      className={`
-        mx-auto mt-6 mb-6 w-full 
-        rounded-2xl bg-gradient-to-br from-indigo-50 to-blue-50 
-        px-4 py-5 text-center shadow-sm transition-all duration-300
-        dark:from-gray-800 dark:to-gray-900
-        ${!isVisible ? "max-w-12 p-2" : "max-w-60"}
-      `}>
-      
-      {/* Responsive styles */}
-      <style jsx>{`
-        @media (max-width: 1024px) {
-          .max-w-12 {
-            display: none;
-          }
-        }
-      `}</style>
+    <div className={`transition-all duration-300 ${isVisible ? "w-64" : "w-20"}`}>
+      <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow">
+        {isVisible ? (
+          <div>
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-white">Widget Title</h2>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+              Some expanded sidebar content goes here.
+            </p>
+          </div>
+        ) : (
+          <div className="flex justify-center items-center h-full">
+            <span className="text-gray-500 dark:text-gray-400">⋮</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -2,7 +2,7 @@ import Chart from "react-apexcharts";
 import { useState } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
-import { BiArrowFromBottom, BiArrowToTop, BiArrowFromTop } from "react-icons/bi";
+import { BiArrowFromBottom, BiArrowToTop, BiArrowFromTop, BiDotsHorizontalRounded } from "react-icons/bi";
 
 export default function MonthlyTarget() {
   const series = [75.55];
@@ -73,7 +73,7 @@ export default function MonthlyTarget() {
           </div>
           <div className="relative inline-block">
             <button className="dropdown-toggle" onClick={toggleDropdown}>
-              <MoreDotIcon className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 size-6" />
+              <BiDotsHorizontalRounded className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 size-6" />
             </button>
             <Dropdown isOpen={isOpen} onClose={closeDropdown} className="w-40 p-2">
               <DropdownItem
